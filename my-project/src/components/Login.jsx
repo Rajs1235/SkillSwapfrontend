@@ -4,9 +4,12 @@ import Signup from './Signup';
 function Login() {
   return (<>
     <div className=" flex items-center justify-center  px-4">
-      <div className="bg-blue-900 rounded-xl p-8 w-full max-w-sm flex flex-col items-center space-y-4 shadow-lg">
+      <div className="bg-blue-900 rounded-xl p-8 w-full max-w-2xl flex flex-col items-center space-y-4 shadow-lg">
 
-        <h2 className='text-white text-3xl text-red-500'>Login</h2>
+        <h2 className="text-3xl font-montserrat font-bold bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">
+          Login
+        </h2>
+
         <input type="text" placeholder='Enter your Username' className='bg-white rounded-xl  p-5 m-5 h-30 w-60  hover:ring-2 hover:ring-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500' />
         <br /><br />
 
