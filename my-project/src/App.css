@@ -1,0 +1,69 @@
+/* Cover the full viewport */
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+
+  background-image: url("./assets/trgt.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-attachment: fixed;
+}
+.site-title {
+  position: absolute;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3rem;
+  font-weight: bold;
+  color: white;
+  text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.7);
+  font-family: 'Montserrat', sans-serif;
+  letter-spacing: 2px;
+  z-index: 10;
+}
+
+/* Use flex to center content */
+#root {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Signup form container */
+.container {
+  background-color: rgba(0, 0, 80, 0.9); /* semi-transparent navy */
+  border-radius: 1rem;
+  padding: 2rem 3rem;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  max-width: 400px;
+  width: 100%;
+}
+
+/* Optional styles */
+input {
+  width: 100%;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+button {
+  padding: 0.75rem 2rem;
+  background-color: teal;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #007777;
+}
+
