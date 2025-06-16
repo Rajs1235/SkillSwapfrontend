@@ -11,7 +11,25 @@ body, html {
   background-position: center;
   background-attachment: fixed;
 }
+/* Add this to your App.css or a global CSS file if not already present */
+.app-container {
+  display: flex;
+  flex-direction: column; /* Stacks children vertically */
+  min-height: 100vh; /* Ensures the container takes full viewport height */
+  /* You might add padding here if the SkillShare title is too close to the top edge */
+  /* padding-top: 20px; */
+}
 
+/* You might want to remove or adjust the ml-0 for site-title if it's causing issues
+   or if the text-left is sufficient and you want auto margins. */
+.site-title {
+  /* Ensure it takes its own space and doesn't get positioned absolutely */
+  margin-bottom: 20px; /* Add some space below the title */
+  /* You might override ml-0 if it's conflicting with centering or other layouts */
+  /* margin-left: auto; */
+  /* margin-right: auto; */
+  /* text-align: center; */ /* If you want to center it */
+}
 /* Centered root content */
 #root {
   height: 100%;
