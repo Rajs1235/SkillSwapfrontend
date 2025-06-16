@@ -2,6 +2,7 @@ import React from 'react'
 import { Link, NavLink } from 'react-router-dom'
 import Signup from './Signup';
 function Login() {
+
   return (<>
     <div className=" flex items-center justify-center  px-4">
       <div className="bg-blue-900 rounded-xl p-8 w-full max-w-2xl flex flex-col items-center space-y-4 shadow-lg">
