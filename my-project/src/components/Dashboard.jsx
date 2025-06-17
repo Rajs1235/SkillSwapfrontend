@@ -15,7 +15,7 @@ function Dashboard() {
 
   return (
     <div
-      className="min-h-screen bg-cover bg-center text-white"
+      className="max-h-screen bg-cover bg-center text-white"
       style={{
         backgroundImage: "url('/images/857de75c-26e3-4770-becf-70a76c8cd6f0.png')",
       }}

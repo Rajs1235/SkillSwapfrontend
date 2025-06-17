@@ -6,6 +6,7 @@ import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import Home from './components/Home';
+import ContactUs from './components/Contact';
 import About from './components/About';
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
               <Route path='/' element={<Home />} />
               <Route path='/Profile' element={<Profile />} />
                <Route path='/About' element={<About />} />
+                <Route path='/contact' element={<ContactUs />} />
             </Routes>
           </BrowserRouter>
         </main>
