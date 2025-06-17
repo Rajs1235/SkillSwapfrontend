@@ -1,6 +1,6 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
-
+import Dashboard from './Dashboard'
 function Home() {
   return (
     <div className="">
@@ -17,7 +17,7 @@ function Home() {
             </p>
             <div className="flex flex-wrap gap-4">
               <Link 
-                to="/signup" 
+                to="/Dashboard" 
                 className="bg-teal-500 hover:bg-teal-600 text-white px-8 py-3 rounded-lg text-lg font-semibold transition-all shadow-lg hover:shadow-xl"
               >
                 Get Started
