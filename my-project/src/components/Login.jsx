@@ -1,30 +1,46 @@
-import React from 'react'
-import { Link, NavLink } from 'react-router-dom'
-import Signup from './Signup';
+import React from 'react';
+import { Link } from 'react-router-dom';
+
 function Login() {
+  return (
+    <div className="w-full max-w-2xl mx-auto mt-20 bg-blue-900/80 backdrop-blur-md p-14 rounded-xl shadow-2xl text-white">
+      <h2 className="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">
+        Login
+      </h2>
 
-  return (<>
-    <div className=" flex items-center justify-center  px-4">
-      <div className="bg-blue-900 rounded-xl p-8 w-full max-w-2xl flex flex-col items-center space-y-4 shadow-lg">
+      <div className="space-y-8 min-h-[400px] flex flex-col justify-between">
+        <div className="space-y-8">
+          <input
+            type="text"
+            placeholder="Enter your Username"
+            className="w-full px-6 py-4 bg-white text-black rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none hover:ring-2 hover:ring-purple-500 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200"
+          />
 
-        <h2 className="text-3xl font-montserrat font-bold bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">
-          Login
-        </h2>
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full px-6 py-4 bg-white text-black rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none hover:ring-2 hover:ring-purple-500 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200"
+          />
+        </div>
 
-        <input type="text" placeholder='Enter your Username' className='bg-white rounded-xl  p-5 m-5 h-30 w-60  hover:ring-2 hover:ring-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500' />
-        <br /><br />
+        <div className="mt-8">
+          <button
+            type="submit"
+            className="w-full bg-teal-500 text-white px-6 py-4 rounded-xl hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-lg"
+          >
+            Login
+          </button>
 
-        <input type="password" placeholder='Password' className='bg-white rounded-xl  p-5 m-5  h-30 w-60  hover:ring-2 hover:ring-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500' />
-        <br /><br />
-        <button type='submit' className='border white 1px solid bg-teal-500 p-3 m-3 rounded-3xl  hover:ring-2 hover:ring-green-500 focus:outline-none focus:ring-2 focus:ring-green-500'>Login</button>
-        <br /><br />
-        <p className="text-white">
-          Not a user? <Link to="/signup" className="text-indigo-300 hover:underline">Sign Up</Link>
-        </p>
+          <p className="text-center text-white mt-8">
+            Not a user?{' '}
+            <Link to="/signup" className="text-indigo-300 hover:underline">
+              Sign Up
+            </Link>
+          </p>
+        </div>
       </div>
-
-    </div></>
-  )
+    </div>
+  );
 }
 
 export default Login;
