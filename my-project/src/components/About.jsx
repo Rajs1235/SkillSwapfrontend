@@ -10,7 +10,7 @@ function AboutUs() {
           {/* Left side - Content */}
           <div className="p-12 flex flex-col justify-center">
             <h1 className="text-5xl font-bold mb-6 text-white">
-              About const first = useContext(second)
+              About Us
             </h1>
             <p className="text-xl mb-8 text-white/80">
               Building a platform where knowledge sharing becomes effortless and rewarding. 
