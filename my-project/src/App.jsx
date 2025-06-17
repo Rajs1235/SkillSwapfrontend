@@ -12,7 +12,7 @@ function App() {
     <>
   <div className="app-container min-h-screen flex flex-col">
         {/* Header section with increased margin-bottom */}
-        <header className="mb-12 pt-8 px-4"> {/* Added padding-top and increased margin-bottom */}
+        <header className="mb-20 pt-8 px-4"> {/* Added padding-top and increased margin-bottom */}
           <h1 className="site-title text-4xl font-bold text-left text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
             SkillShare
           </h1>

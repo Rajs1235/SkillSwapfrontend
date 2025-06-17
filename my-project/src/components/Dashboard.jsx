@@ -13,10 +13,9 @@ function Dashboard() {
   return (
     <>
       {/* Title */}
-      <h1 className="site-title">SkillShare</h1>
-
+    
       {/* Navbar below the title */}
-      <nav className="mt-[120px] flex justify-center">
+      <nav className="mt-[20px] flex justify-center">
         <ul className="flex items-center justify-center space-x-6 text-white text-lg font-medium">
           {navItems.map((item) =>
             item.active ? (
