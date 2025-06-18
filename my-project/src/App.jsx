@@ -21,7 +21,7 @@ import Enrolled from './components/Enrolled';
 import Progress from './components/Progress';
 import SavedCourse from './components/SavedCourse';
 import Skillbuilder from './components/SkillBuilder';
-import AiSupport from './components/AiSupport.jsx';
+
 import Matches from './components/Matches';
 import TimeTracker from './components/Time'; // renamed to match route name
 import Badges from './components/Badges';
