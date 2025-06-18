@@ -21,7 +21,7 @@ import Enrolled from './components/Enrolled';
 import Progress from './components/Progress';
 import SavedCourse from './components/SavedCourse';
 import Skillbuilder from './components/SkillBuilder';
-
+import AiSupport from './components/AiSupport.jsx';
 import Matches from './components/Matches';
 import TimeTracker from './components/Time'; // renamed to match route name
 import Badges from './components/Badges';
@@ -63,7 +63,11 @@ function App() {
             <Route path="/time-tracker" element={<TimeTracker />} />
             <Route path="/badges" element={<Badges />} />
             <Route path="/chat/:roomId" element={<Chat />} />
+<<<<<<< HEAD
   <Route path="/video-call/:partnerId" element={<Videocall />} />
+=======
+  <Route path="/video-call/:roomId" element={<Videocall />} />
+>>>>>>> 15540af (commit)
           </Routes>
         </BrowserRouter>
       </main>
