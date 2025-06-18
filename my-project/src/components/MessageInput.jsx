@@ -6,7 +6,7 @@ const MessageInput = ({ onSend }) => {
   const handleSend = () => {
     if (text.trim()) {
       onSend(text);
-       setText('');
+      setText('');
     }
   };
 
@@ -29,4 +29,3 @@ const MessageInput = ({ onSend }) => {
 };
 
 export default MessageInput;
-

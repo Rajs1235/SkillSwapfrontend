@@ -12,7 +12,6 @@ const ChatWindow = () => {
   const [newMsg, setNewMsg] = useState('');
   const messagesEndRef = useRef(null);
 
-  // Fetch chat history on mount
   useEffect(() => {
     const fetchHistory = async () => {
       try {
@@ -26,28 +25,21 @@ const ChatWindow = () => {
       }
     };
 
-    if (roomId) {
-      fetchHistory();
-    }
+    if (roomId) fetchHistory();
   }, [roomId]);
 
-  // Socket connection
   useEffect(() => {
     if (!roomId || !userId) return;
-
     socket.emit('join_room', { roomId, userId });
-
     socket.on('receive_message', (message) => {
       setMessages((prev) => [...prev, message]);
     });
-
     return () => {
       socket.emit('leave_room', { roomId, userId });
       socket.off('receive_message');
     };
   }, [roomId, userId]);
 
-  // Auto-scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
@@ -62,7 +54,7 @@ const ChatWindow = () => {
         timestamp: new Date().toISOString(),
       };
       socket.emit('send_message', message);
-      setMessages((prev) => [...prev, message]); // Optimistic update
+      setMessages((prev) => [...prev, message]);
       setNewMsg('');
     }
   };

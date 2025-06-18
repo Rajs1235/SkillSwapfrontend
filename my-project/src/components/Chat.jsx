@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
@@ -82,14 +82,6 @@ const ChatComponent = ({ chatPartner = 'SkillMate' }) => {
 };
 
 export default ChatComponent;
-=======
-import React from 'react'
 
-function Chat() {
-  return (
-    <div>Chat</div>
-  )
-}
 
-export default Chat;
->>>>>>> 15540af (commit)
+
