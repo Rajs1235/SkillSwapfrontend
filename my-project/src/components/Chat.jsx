@@ -34,15 +34,16 @@ const ChatComponent = ({ chatPartner = 'SkillMate' }) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    const messageObj = {
-      roomId,
-      text: newMessage,
+    const userMsg = {
+      id: messages.length + 1,
       sender: 'You',
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      text: newMessage,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
 
-    setMessages((prev) => [...prev, messageObj]);
-    socket.emit('send_message', messageObj);
+    setMessages(prev => [...prev, userMsg]);
+    setIsLoading(true);
+    socket.emit('send_message', { text: newMessage });
     setNewMessage('');
   };
 
