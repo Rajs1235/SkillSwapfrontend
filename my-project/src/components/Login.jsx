@@ -1,9 +1,40 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import api from './api'; // Ensure this path is correct based on your folder structure
 
 function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    try {
+      const response = await api.post('/v1/users/login', {
+        email,
+        password,
+      });
+
+      console.log('Login success:', response.data);
+      // ✅ You can store token or user data here if needed
+      // localStorage.setItem("token", response.data.token);
+
+      // Redirect to dashboard or homepage
+      navigate('/dashboard');
+    } catch (err) {
+      console.error('Login failed:', err);
+      setError(err.response?.data?.message || 'Login failed. Please try again.');
+    }
+  };
+
   return (
-    <div className="w-full max-w-2xl mx-auto mt-20 bg-blue-900/80 backdrop-blur-md p-14 rounded-xl shadow-2xl text-white">
+    <form
+      onSubmit={handleLogin}
+      className="w-full max-w-2xl mx-auto mt-20 bg-blue-900/80 backdrop-blur-md p-14 rounded-xl shadow-2xl text-white"
+    >
       <h2 className="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">
         Login
       </h2>
@@ -11,16 +42,26 @@ function Login() {
       <div className="space-y-8 min-h-[400px] flex flex-col justify-between">
         <div className="space-y-8">
           <input
-            type="text"
-            placeholder="Enter your Username"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Enter your Email"
             className="w-full px-6 py-4 bg-white text-black rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none hover:ring-2 hover:ring-purple-500 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200"
+            required
           />
 
           <input
             type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             className="w-full px-6 py-4 bg-white text-black rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none hover:ring-2 hover:ring-purple-500 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200"
+            required
           />
+
+          {error && (
+            <p className="text-red-300 text-center text-sm mt-2">{error}</p>
+          )}
         </div>
 
         <div className="mt-8">
@@ -39,7 +80,7 @@ function Login() {
           </p>
         </div>
       </div>
-    </div>
+    </form>
   );
 }
 
