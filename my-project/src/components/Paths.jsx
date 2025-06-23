@@ -35,65 +35,35 @@ const learningPath = [
 ];
 
 function Paths() {
+  
+  useEffect(() => {
+    async function fetchPaths() {
+      try {
+        const res = await api.get('/v1/paths');
+        setPaths(res.data.paths || []);
+      } catch (err) {
+        console.error('Error fetching learning paths', err);
+      }
+    }
+    fetchPaths();
+  }, []);
+
   return (
-    <div
-      className="min-h-screen bg-cover bg-center text-white py-16 px-6"
-      style={{
-        backgroundImage: "url('/images/857de75c-26e3-4770-becf-70a76c8cd6f0.png')",
-      }}
-    >
-      <div className="max-w-7xl mx-auto w-full relative">
-
-
-        {/* Snake Animation Path Line */}
-        <div className="absolute w-full top-[135px] left-0 z-0 flex justify-center">
-          <svg
-            viewBox="0 0 1200 100"
-            className="w-full max-w-6xl h-[100px]"
-            preserveAspectRatio="none"
-          >
-            <path
-              id="snakePath"
-              d="M0,50 C300,0 900,100 1200,50"
-              stroke="#10b98155"
-              strokeWidth="8"
-              fill="none"
-              strokeLinecap="round"
-              strokeDasharray="10 20"
-            />
-            <motion.circle
-              r="10"
-              fill="#10b981"
-              initial={{ pathLength: 0 }}
-              animate={{ pathLength: 1 }}
-              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
-            >
-              <animateMotion
-                dur="10s"
-                repeatCount="indefinite"
-                rotate="auto"
-                keyPoints="0;1"
-                keyTimes="0;1"
-              >
-                <mpath xlinkHref="#snakePath" />
-              </animateMotion>
-            </motion.circle>
-          </svg>
-        </div>
-
-        {/* Responsive Horizontal-then-Vertical Cards */}
-        <div className="relative z-10 flex flex-wrap justify-center gap-10 mt-12">
-          {learningPath.map((step) => (
-            <div
-              key={step.id}
-              className="bg-white/20 backdrop-blur-xl p-6 w-[280px] rounded-2xl shadow-lg text-white"
-            >
-              <h3 className="text-xl font-bold">{step.title}</h3>
-              <p className="text-sm mt-1 text-white/80">{step.description}</p>
-              <p className="text-xs mt-2 text-white/60">{step.date}</p>
-            </div>
-          ))}
-        </div>
+    <div className="min-h-screen bg-cover bg-center py-12 px-6 text-white" style={{ backgroundImage: "url('/images/857de75c-26e3-4770-becf-70a76c8cd6f0.png')" }}>
+      <div className="max-w-5xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-white/20">
+        <h1 className="text-3xl font-bold mb-6">🛠 Learning Paths</h1>
+        {paths.length === 0 ? (
+          <p className="text-white/80">No learning paths found.</p>
+        ) : (
+          <ul className="space-y-4">
+            {paths.map(path => (
+              <li key={path.id} className="bg-white/10 p-4 rounded-xl border border-white/20 shadow">
+                <h2 className="text-xl font-semibold text-white">{path.title}</h2>
+                <p className="text-white/80 mt-1">{path.description}</p>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

@@ -1,10 +1,5 @@
-import React from 'react';
-
-const timeStats = [
-  { label: 'This Week', hours: 12 },
-  { label: 'Total', hours: 58 },
-  { label: 'Avg per Day', hours: 2.4 },
-];
+import React, { useEffect, useState } from 'react';
+import api from './api';
 
 function TimeTracker() {
   const [stats, setStats] = useState([]);
@@ -12,11 +7,7 @@ function TimeTracker() {
   useEffect(() => {
     const fetchTimeStats = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/v1/timetracker`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
+        const res = await api.get('/v1/timetracker');
         const { thisWeek, total, avgPerDay } = res.data;
         setStats([
           { label: 'This Week', hours: thisWeek },

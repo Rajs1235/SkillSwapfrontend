@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
-import axios from 'axios';
+import api from './api';
 
 function Progress() {
   const [progressData, setProgressData] = useState([]);
@@ -8,11 +8,7 @@ function Progress() {
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/v1/progress`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-
+        const res = await api.get('/v1/progress');
         const formatted = res.data?.progress?.map((item) => ({
           title: item.courseName,
           data: [
