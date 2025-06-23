@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import api from '../api'; // axios instance
 
-const  VideoCall = () => {
+const VideoCall = () => {
   const jitsiContainerRef = useRef(null);
   const apiRef = useRef(null);
   const [roomId, setRoomId] = useState('');

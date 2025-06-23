@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api'; // Make sure api.js is correctly configured
 
@@ -32,17 +33,10 @@ function Dashboard() {
   }, [userId]);
 
   const navItems = [
-<<<<<<< HEAD
-    { name: 'Home', slug: '/', icon: '🏠', active: true },
-    { name: 'Login', slug: '/login', icon: '🔐', active: true },
-    { name: 'Signup', slug: '/signup', icon: '✍️', active: true },
-    { name: 'Profile', slug: '/profile', icon: '🙍‍♂️', active: true },
-=======
     { name: 'Home', slug: '/',icon:'🏠', active: true },
     { name: 'Login', slug: '/login',icon:'🔐 ', active: true },
     { name: 'Signup', slug: '/signup',icon:'✍️  ', active: true },
     { name: 'Profile', slug: '/profile',icon:'🙍‍♂️  ', active: true },
->>>>>>> 15540af (commit)
   ];
 
   const sidebarItems = [
@@ -60,7 +54,6 @@ function Dashboard() {
       }}
     >
       {/* Navbar */}
-<<<<<<< HEAD
       <nav className="mt-6 flex justify-center">
         <ul className="flex items-center justify-center space-x-6 text-white text-lg font-medium">
           {navItems.map(
@@ -81,26 +74,6 @@ function Dashboard() {
           )}
         </ul>
       </nav>
-=======
- <nav className="mt-6 flex justify-center">
-  <ul className="flex items-center justify-center space-x-6 text-white text-lg font-medium">
-    {navItems.map(
-      (item) =>
-        item.active && (
-          <li key={item.name}>
-            <button
-              onClick={() => navigate(item.slug)}
-              className="group inline-block px-6 py-2 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition duration-200 border border-white/20 relative"
-            >
-              {item.name}
-              <span className="ml-2 hidden group-hover:inline">{item.icon}</span>
-            </button>
-          </li>
-        )
-    )}
-  </ul>
-</nav>
->>>>>>> 15540af (commit)
 
       {/* Main Content */}
       <main className="flex flex-col items-center justify-center px-6 pt-12">

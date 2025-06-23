@@ -1,5 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+import React from 'react';
+
+const timeStats = [
+  { label: 'This Week', hours: 12 },
+  { label: 'Total', hours: 58 },
+  { label: 'Avg per Day', hours: 2.4 },
+];
 
 function TimeTracker() {
   const [stats, setStats] = useState([]);

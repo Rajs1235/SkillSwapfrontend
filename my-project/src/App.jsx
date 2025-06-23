@@ -63,11 +63,7 @@ function App() {
             <Route path="/time-tracker" element={<TimeTracker />} />
             <Route path="/badges" element={<Badges />} />
             <Route path="/chat/:roomId" element={<Chat />} />
-<<<<<<< HEAD
-  <Route path="/video-call/:partnerId" element={<Videocall />} />
-=======
   <Route path="/video-call/:roomId" element={<Videocall />} />
->>>>>>> 15540af (commit)
           </Routes>
         </BrowserRouter>
       </main>

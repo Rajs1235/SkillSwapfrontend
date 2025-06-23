@@ -1,13 +1,18 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
-const socket = io(import.meta.env.VITE_API_BASE_URL); // Use environment URL
+const socket = io('http://localhost:5000'); // change if deployed
 
-const ChatComponent = ({ chatPartner = 'SkillMate' }) => {
-  const { roomId } = useParams(); // <-- Get roomId from URL
-  const [messages, setMessages] = useState([]);
+const ChatComponent = ({ chatPartner = 'DeepSeek' }) => {
+  const [messages, setMessages] = useState([
+    {
+      id: 1,
+      sender: chatPartner,
+      text: `Hello! I'm your AI assistant. How can I help you with your skill exchange today?`,
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    }
+  ]);
   const [newMessage, setNewMessage] = useState('');
   const messagesEndRef = useRef(null);
 
@@ -34,16 +39,15 @@ const ChatComponent = ({ chatPartner = 'SkillMate' }) => {
     e.preventDefault();
     if (!newMessage.trim()) return;
 
-    const userMsg = {
-      id: messages.length + 1,
-      sender: 'You',
+    const messageObj = {
+      roomId,
       text: newMessage,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+      sender: 'You',
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
     };
 
-    setMessages(prev => [...prev, userMsg]);
-    setIsLoading(true);
-    socket.emit('send_message', { text: newMessage });
+    setMessages((prev) => [...prev, messageObj]);
+    socket.emit('send_message', messageObj);
     setNewMessage('');
   };
 
