@@ -29,3 +29,4 @@ const MessageInput = ({ onSend }) => {
 };
 
 export default MessageInput;
+
