@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import api from './api'; // Adjust path if needed
 import {
   FaPython, FaReact, FaJava, FaNodeJs, FaChartBar, FaPaintBrush, FaMusic,
   FaCamera, FaLanguage, FaPenNib, FaBrain, FaProjectDiagram, FaChartPie,
@@ -7,15 +8,10 @@ import {
 } from 'react-icons/fa';
 import {
   SiTableau, SiJavascript, SiDjango, SiR, SiGoogleanalytics, SiPhp,
-  SiMysql, SiTypescript // Keep these imports directly from 'react-icons/si'
-} from 'react-icons/si'; // <--- THIS IS THE CORRECTED LINE
+  SiMysql, SiTypescript
+} from 'react-icons/si';
 import { GiMicrophone, GiDrum } from 'react-icons/gi';
 import { AiFillStar, AiOutlineStar } from 'react-icons/ai';
-
-// A placeholder for SiIcons if it's not a separate file, otherwise you'll keep your Si imports
-// For simplicity, I'm assuming you have a file like SiIcons.js that re-exports these.
-// If not, just ensure all Si-prefixed icons are imported directly as they are in your original code.
-// For example: import { SiTableau, SiJavascript, ... } from 'react-icons/si';
 
 function Profile() {
   const { register, handleSubmit, watch, setValue, getValues } = useForm({
@@ -24,25 +20,92 @@ function Profile() {
       teachSkills: []
     }
   });
+
   const [submittedData, setSubmittedData] = useState({
     learnSkills: [],
     teachSkills: []
   });
+
   const [isEditing, setIsEditing] = useState(true);
   const [selectedCategories, setSelectedCategories] = useState([]);
 
-  const onSubmit = (data) => {
-    const processedData = {
-      ...data,
-      learnSkills: Array.isArray(data.learnSkills) ? data.learnSkills : [],
-      teachSkills: Array.isArray(data.teachSkills) ? data.teachSkills : []
-    };
-    setSubmittedData(processedData);
-    setIsEditing(false);
-  };
-
   const selectedLearnSkills = watch('learnSkills') || [];
   const selectedTeachSkills = watch('teachSkills') || [];
+
+  useEffect(() => {
+    async function loadProfile() {
+      try {
+        const res = await api.get('/v1/users/profile');
+        const user = res.data;
+
+        setValue('FirstName', user.firstName || '');
+        setValue('LastName', user.lastName || '');
+        setValue('learnSkills', user.learnSkills || []);
+        setValue('teachSkills', user.teachSkills || []);
+
+        (user.teachLevels || []).forEach(({ skill, level }) => {
+          setValue(`teachLevel-${skill}`, level);
+        });
+
+        const allSkills = [...(user.learnSkills || []), ...(user.teachSkills || [])];
+        const matchedCategories = Object.entries(skillCategories).filter(([_, skills]) =>
+          skills.some(skill => allSkills.includes(skill.name))
+        ).map(([cat]) => cat);
+
+        setSelectedCategories(matchedCategories);
+
+        setSubmittedData({
+          FirstName: user.firstName || '',
+          LastName: user.lastName || '',
+          learnSkills: user.learnSkills || [],
+          teachSkills: user.teachSkills || [],
+          ...Object.fromEntries((user.teachLevels || []).map(({ skill, level }) => [`teachLevel-${skill}`, level]))
+        });
+
+        setIsEditing(false);
+      } catch (err) {
+        console.error('Failed to fetch profile:', err);
+      }
+    }
+
+    loadProfile();
+  }, []);
+
+  const onSubmit = async (data) => {
+    try {
+      const teachLevels = data.teachSkills.map(skill => ({
+        skill,
+        level: data[`teachLevel-${skill}`] || 'Beginner'
+      }));
+
+      const payload = {
+        firstName: data.FirstName,
+        lastName: data.LastName,
+        learnSkills: data.learnSkills,
+        teachSkills: data.teachSkills,
+        teachLevels
+      };
+
+      await api.put('/v1/users/update', payload);
+
+      setSubmittedData({
+        ...data,
+        ...Object.fromEntries(teachLevels.map(({ skill, level }) => [`teachLevel-${skill}`, level]))
+      });
+
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Profile update failed:', err);
+    }
+  };
+
+  const toggleCategory = (category) => {
+    setSelectedCategories(prev =>
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
+        : [...prev, category]
+    );
+  };
 
   const getStarRating = (level) => {
     const levels = {
@@ -60,146 +123,40 @@ function Profile() {
     );
   };
 
-  const skillCategories = {
-    programming: [
-      { name: 'Python', icon: <FaPython /> },
-      { name: 'JavaScript', icon: <SiJavascript /> },
-      { name: 'TypeScript', icon: <SiTypescript /> },
-      { name: 'C++', icon: <FaBrain /> },
-      { name: 'Java', icon: <FaJava /> },
-      { name: 'Node.js', icon: <FaNodeJs /> },
-      { name: 'React', icon: <FaReact /> },
-      { name: 'PHP', icon: <SiPhp /> },
-      { name: 'Django', icon: <SiDjango /> },
-      { name: 'MySQL', icon: <SiMysql /> },
-      { name: 'Rust', icon: <FaProjectDiagram /> },
-      { name: 'Go', icon: <FaCodeBranch /> },
-    ],
-    'data-analysis': [
-      { name: 'Excel', icon: <FaChartBar /> },
-      { name: 'Power BI', icon: <FaChartPie /> },
-      { name: 'SQL', icon: <FaProjectDiagram /> },
-      { name: 'Tableau', icon: <SiTableau /> },
-      { name: 'Python (Pandas)', icon: <FaPython /> },
-      { name: 'R', icon: <SiR /> },
-      { name: 'Data Visualization', icon: <FaChartBar /> },
-      { name: 'Google Analytics', icon: <SiGoogleanalytics /> },
-    ],
-    creative: [
-      { name: 'Graphic Design', icon: <FaPaintBrush /> },
-      { name: 'Music Production', icon: <FaMusic /> },
-      { name: 'Photography', icon: <FaCamera /> },
-      { name: 'Video Editing', icon: <FaCamera /> },
-      { name: '3D Animation', icon: <FaCamera /> },
-      { name: 'UI/UX Design', icon: <FaPaintBrush /> },
-    ],
-    marketing: [
-      { name: 'SEO', icon: <SiGoogleanalytics /> },
-      { name: 'Social Media', icon: <FaLanguage /> },
-      { name: 'Email Marketing', icon: <FaLanguage /> },
-      { name: 'Branding', icon: <FaLanguage /> },
-      { name: 'Google Ads', icon: <SiGoogleanalytics /> },
-      { name: 'Content Strategy', icon: <FaPenNib /> },
-      { name: 'Market Research', icon: <FaChartBar /> },
-    ],
-    business: [
-      { name: 'Project Management', icon: <FaProjectDiagram /> },
-      { name: 'Business Analysis', icon: <FaChartBar /> },
-      { name: 'Finance', icon: <FaChartBar /> },
-      { name: 'Entrepreneurship', icon: <FaProjectDiagram /> },
-      { name: 'Negotiation', icon: <FaLanguage /> },
-      { name: 'Leadership', icon: <FaBrain /> },
-    ],
-    writing: [
-      { name: 'Content Writing', icon: <FaPenNib /> },
-      { name: 'Copywriting', icon: <FaPenNib /> },
-      { name: 'Technical Writing', icon: <FaPenNib /> },
-      { name: 'Blogging', icon: <FaPenNib /> },
-      { name: 'Scriptwriting', icon: <FaPenNib /> },
-      { name: 'Editing', icon: <FaPenNib /> },
-    ],
-    languages: [
-      { name: 'English', icon: <FaLanguage /> },
-      { name: 'Spanish', icon: <FaLanguage /> },
-      { name: 'French', icon: <FaLanguage /> },
-      { name: 'German', icon: <FaLanguage /> },
-      { name: 'Japanese', icon: <FaLanguage /> },
-      { name: 'Mandarin', icon: <FaLanguage /> },
-      { name: 'Arabic', icon: <FaLanguage /> },
-    ],
-    'music-instruments': [
-      { name: 'Guitar', icon: <FaGuitar /> },
-      { name: 'Piano', icon: <FaMusic /> },
-      { name: 'Tabla', icon: <GiDrum /> },
-      { name: 'Rapping', icon: <GiMicrophone /> },
-      { name: 'Beatboxing', icon: <GiMicrophone /> },
-    ]
-  };
-
-  const toggleCategory = (category) => {
-    setSelectedCategories(prev =>
-      prev.includes(category)
-        ? prev.filter(c => c !== category)
-        : [...prev, category]
-    );
-  };
-
-  // Helper function to get skill details (name and icon)
   const getSkillDetails = (skillName) => {
     for (const category of Object.values(skillCategories)) {
       const foundSkill = category.find(s => s.name === skillName);
-      if (foundSkill) {
-        return foundSkill;
-      }
+      if (foundSkill) return foundSkill;
     }
     return { name: skillName, icon: null };
   };
 
-  // Determine skills to show in the editing view
-  // Only show skills from currently selected categories, plus any already selected skills
   const skillsForEditingView = (() => {
     const skills = new Map();
-
-    // Add all skills from the currently selected categories
     selectedCategories.forEach(category => {
-      skillCategories[category]?.forEach(skill => {
-        skills.set(skill.name, skill);
-      });
+      skillCategories[category]?.forEach(skill => skills.set(skill.name, skill));
     });
-
-    // Ensure any previously selected 'learn' skills are visible, even if their category isn't currently open
     selectedLearnSkills.forEach(skillName => {
-      if (!skills.has(skillName)) {
-        skills.set(skillName, getSkillDetails(skillName));
-      }
+      if (!skills.has(skillName)) skills.set(skillName, getSkillDetails(skillName));
     });
-
-    // Ensure any previously selected 'teach' skills are visible, even if their category isn't currently open
     selectedTeachSkills.forEach(skillName => {
-      if (!skills.has(skillName)) {
-        skills.set(skillName, getSkillDetails(skillName));
-      }
+      if (!skills.has(skillName)) skills.set(skillName, getSkillDetails(skillName));
     });
-
     return Array.from(skills.values());
   })();
 
-
-  // Filter skills for learn section (from the combined list)
   const learnSkillsToShow = skillsForEditingView.filter(
-    ({ name }) => !selectedTeachSkills.includes(name) // Exclude skills already selected as 'teach' skills
+    ({ name }) => !selectedTeachSkills.includes(name)
   );
 
-  // Filter skills for teach section (from the combined list)
   const teachSkillsToShow = skillsForEditingView.filter(
-    ({ name }) => !selectedLearnSkills.includes(name) // Exclude skills already selected as 'learn' skills
+    ({ name }) => !selectedLearnSkills.includes(name)
   );
 
   const handleSkillToggle = (skillName, listName) => {
     const currentValues = getValues(listName) || [];
     if (currentValues.includes(skillName)) {
       setValue(listName, currentValues.filter(skill => skill !== skillName));
-      // If a teach skill is deselected, clear its level
       if (listName === 'teachSkills') {
         setValue(`teachLevel-${skillName}`, '');
       }
@@ -252,15 +209,13 @@ function Profile() {
             </div>
           </div>
 
-          {/* Conditional rendering for skill sections: Only show if categories are selected OR skills are already chosen */}
           {(selectedCategories.length > 0 || selectedLearnSkills.length > 0 || selectedTeachSkills.length > 0) && (
             <>
               <div>
                 <p className="font-semibold text-xl mb-2">Skills You Want to Learn</p>
                 <div className="flex flex-wrap gap-3">
                   {learnSkillsToShow.map(({ name, icon }) => (
-                    <label
-                      key={`learn-${name}`}
+                    <label key={`learn-${name}`}
                       className={`px-4 py-2 rounded-full border shadow-sm cursor-pointer flex items-center gap-2 ${
                         selectedLearnSkills.includes(name)
                           ? 'bg-violet-500 text-white'
@@ -285,8 +240,7 @@ function Profile() {
                 <p className="font-semibold text-xl mb-2">Skills You Can Teach</p>
                 <div className="flex flex-wrap gap-3">
                   {teachSkillsToShow.map(({ name, icon }) => (
-                    <label
-                      key={`teach-${name}`}
+                    <label key={`teach-${name}`}
                       className={`px-4 py-2 rounded-full border shadow-sm cursor-pointer flex items-center gap-2 ${
                         selectedTeachSkills.includes(name)
                           ? 'bg-violet-500 text-white'
@@ -370,3 +324,53 @@ function Profile() {
 }
 
 export default Profile;
+
+// Define your skillCategories below or import if it's already defined in another file
+const skillCategories = {
+  programming: [
+    { name: 'Python', icon: <FaPython /> }, { name: 'JavaScript', icon: <SiJavascript /> },
+    { name: 'TypeScript', icon: <SiTypescript /> }, { name: 'C++', icon: <FaBrain /> },
+    { name: 'Java', icon: <FaJava /> }, { name: 'Node.js', icon: <FaNodeJs /> },
+    { name: 'React', icon: <FaReact /> }, { name: 'PHP', icon: <SiPhp /> },
+    { name: 'Django', icon: <SiDjango /> }, { name: 'MySQL', icon: <SiMysql /> },
+    { name: 'Rust', icon: <FaProjectDiagram /> }, { name: 'Go', icon: <FaCodeBranch /> },
+  ],
+  'data-analysis': [
+    { name: 'Excel', icon: <FaChartBar /> }, { name: 'Power BI', icon: <FaChartPie /> },
+    { name: 'SQL', icon: <FaProjectDiagram /> }, { name: 'Tableau', icon: <SiTableau /> },
+    { name: 'Python (Pandas)', icon: <FaPython /> }, { name: 'R', icon: <SiR /> },
+    { name: 'Data Visualization', icon: <FaChartBar /> }, { name: 'Google Analytics', icon: <SiGoogleanalytics /> },
+  ],
+  creative: [
+    { name: 'Graphic Design', icon: <FaPaintBrush /> }, { name: 'Music Production', icon: <FaMusic /> },
+    { name: 'Photography', icon: <FaCamera /> }, { name: 'Video Editing', icon: <FaCamera /> },
+    { name: '3D Animation', icon: <FaCamera /> }, { name: 'UI/UX Design', icon: <FaPaintBrush /> },
+  ],
+  marketing: [
+    { name: 'SEO', icon: <SiGoogleanalytics /> }, { name: 'Social Media', icon: <FaLanguage /> },
+    { name: 'Email Marketing', icon: <FaLanguage /> }, { name: 'Branding', icon: <FaLanguage /> },
+    { name: 'Google Ads', icon: <SiGoogleanalytics /> }, { name: 'Content Strategy', icon: <FaPenNib /> },
+    { name: 'Market Research', icon: <FaChartBar /> },
+  ],
+  business: [
+    { name: 'Project Management', icon: <FaProjectDiagram /> }, { name: 'Business Analysis', icon: <FaChartBar /> },
+    { name: 'Finance', icon: <FaChartBar /> }, { name: 'Entrepreneurship', icon: <FaProjectDiagram /> },
+    { name: 'Negotiation', icon: <FaLanguage /> }, { name: 'Leadership', icon: <FaBrain /> },
+  ],
+  writing: [
+    { name: 'Content Writing', icon: <FaPenNib /> }, { name: 'Copywriting', icon: <FaPenNib /> },
+    { name: 'Technical Writing', icon: <FaPenNib /> }, { name: 'Blogging', icon: <FaPenNib /> },
+    { name: 'Scriptwriting', icon: <FaPenNib /> }, { name: 'Editing', icon: <FaPenNib /> },
+  ],
+  languages: [
+    { name: 'English', icon: <FaLanguage /> }, { name: 'Spanish', icon: <FaLanguage /> },
+    { name: 'French', icon: <FaLanguage /> }, { name: 'German', icon: <FaLanguage /> },
+    { name: 'Japanese', icon: <FaLanguage /> }, { name: 'Mandarin', icon: <FaLanguage /> },
+    { name: 'Arabic', icon: <FaLanguage /> },
+  ],
+  'music-instruments': [
+    { name: 'Guitar', icon: <FaGuitar /> }, { name: 'Piano', icon: <FaMusic /> },
+    { name: 'Tabla', icon: <GiDrum /> }, { name: 'Rapping', icon: <GiMicrophone /> },
+    { name: 'Beatboxing', icon: <GiMicrophone /> },
+  ]
+};
