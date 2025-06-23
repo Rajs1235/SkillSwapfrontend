@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
-
+import api from './api';
 function ContactUs() {
   const { register, handleSubmit, formState: { errors } } = useForm();
   const [isSubmitted, setIsSubmitted] = useState(false);
 
-  const onSubmit = (data) => {
-    console.log(data);
+const onSubmit = async (data) => {
+  try {
+    const res = await api.post('/v1/feedback', data);
+    console.log(res.data);
     setIsSubmitted(true);
-  };
+  } catch (error) {
+    console.error('Feedback submission failed:', error);
+    alert('Something went wrong. Please try again.');
+  }
+};
 
   return (
     <div className="w-full mx-auto mt-80 bg-white/30 backdrop-blur-md p-14 rounded-xl shadow-2xl text-white space-y-10" 
