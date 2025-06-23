@@ -1,46 +1,99 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { io } from 'socket.io-client';
+import { useParams } from 'react-router-dom';
 
-const socket = io('http://localhost:5000'); // Your backend URL
+const socket = io(import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000');
 
 const ChatWindow = () => {
+  const { roomId } = useParams();
+  const userId = localStorage.getItem('userId');
+  const username = localStorage.getItem('username') || 'You';
   const [messages, setMessages] = useState([]);
   const [newMsg, setNewMsg] = useState('');
+  const messagesEndRef = useRef(null);
 
+  // Fetch chat history on mount
   useEffect(() => {
-    socket.on('receiveMessage', (msg) => {
-      setMessages(prev => [...prev, msg]);
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/chat/${roomId}`);
+        const data = await res.json();
+        if (data.success) {
+          setMessages(data.messages);
+        }
+      } catch (err) {
+        console.error('Failed to fetch messages:', err);
+      }
+    };
+
+    if (roomId) {
+      fetchHistory();
+    }
+  }, [roomId]);
+
+  // Socket connection
+  useEffect(() => {
+    if (!roomId || !userId) return;
+
+    socket.emit('join_room', { roomId, userId });
+
+    socket.on('receive_message', (message) => {
+      setMessages((prev) => [...prev, message]);
     });
 
     return () => {
-      socket.off('receiveMessage');
+      socket.emit('leave_room', { roomId, userId });
+      socket.off('receive_message');
     };
-  }, []);
+  }, [roomId, userId]);
+
+  // Auto-scroll
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
 
   const sendMessage = () => {
     if (newMsg.trim()) {
-      const message = { text: newMsg, timestamp: Date.now() };
-      socket.emit('sendMessage', message);
+      const message = {
+        roomId,
+        senderId: userId,
+        senderName: username,
+        text: newMsg,
+        timestamp: new Date().toISOString(),
+      };
+      socket.emit('send_message', message);
+      setMessages((prev) => [...prev, message]); // Optimistic update
       setNewMsg('');
     }
   };
 
   return (
-    <div className="p-4">
-      <div className="h-64 overflow-y-auto bg-gray-100 rounded p-2">
+    <div className="p-4 max-w-4xl mx-auto text-black">
+      <h2 className="text-xl font-semibold mb-4">Chat Room: {roomId}</h2>
+      <div className="h-96 overflow-y-auto bg-white rounded p-4 shadow-inner">
         {messages.map((msg, idx) => (
-          <div key={idx} className="mb-2">
-            {msg.text}
+          <div key={idx} className="mb-3">
+            <div className="font-semibold text-blue-700">{msg.senderName || 'User'}:</div>
+            <div className="text-gray-800">{msg.text}</div>
+            <div className="text-xs text-gray-500 mt-1">
+              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+            </div>
           </div>
         ))}
+        <div ref={messagesEndRef} />
       </div>
+
       <div className="mt-4 flex">
         <input
           className="flex-grow p-2 border rounded"
           value={newMsg}
           onChange={(e) => setNewMsg(e.target.value)}
+          placeholder="Type your message..."
         />
-        <button className="ml-2 px-4 py-2 bg-blue-500 text-white rounded" onClick={sendMessage}>
+        <button
+          className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={sendMessage}
+        >
           Send
         </button>
       </div>
@@ -49,4 +102,3 @@ const ChatWindow = () => {
 };
 
 export default ChatWindow;
-
