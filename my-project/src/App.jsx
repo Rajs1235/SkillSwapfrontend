@@ -25,7 +25,8 @@ import Skillbuilder from './components/SkillBuilder';
 import Matches from './components/Matches';
 import TimeTracker from './components/Time'; // renamed to match route name
 import Badges from './components/Badges';
-
+import Chat from './components/Chat';
+import Videocall from './components/Videocall.jsx';
 function App() {
   return (
     <div className="app-container min-h-screen flex flex-col">
@@ -57,10 +58,12 @@ function App() {
             <Route path="/progress" element={<Progress />} />
             <Route path="/savedCourse" element={<SavedCourse />} />
             <Route path="/skillbuilder" element={<Skillbuilder />} />
-          
+        
             <Route path="/matches" element={<Matches />} />
             <Route path="/time-tracker" element={<TimeTracker />} />
             <Route path="/badges" element={<Badges />} />
+            <Route path="/chat/:roomId" element={<Chat />} />
+  <Route path="/video-call/:partnerId" element={<Videocall />} />
           </Routes>
         </BrowserRouter>
       </main>
@@ -69,3 +72,4 @@ function App() {
 }
 
 export default App;
+
