@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts';
 import api from './api';
-
+import axios from 'axios';
 function Progress() {
   const [progressData, setProgressData] = useState([]);
 

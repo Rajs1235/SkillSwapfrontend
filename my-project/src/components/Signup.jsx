@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import api from './api'; // Adjust path if needed
-
+import axios from 'axios';
 function Signup() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');

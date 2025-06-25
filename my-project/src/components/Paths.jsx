@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-
+import axios from 'axios';
 const learningPath = [
   {
     id: 1,

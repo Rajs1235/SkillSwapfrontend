@@ -1,5 +1,5 @@
 import React from 'react';
-
+import axios from 'axios';
 const Sidebar = ({ contacts, onSelect }) => (
   <div className="p-3 space-y-2 text-white">
     <h2 className="font-bold text-lg">Contacts</h2>
