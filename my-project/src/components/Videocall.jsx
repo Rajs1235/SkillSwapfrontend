@@ -1,7 +1,7 @@
 
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import api from '../api'; // axios instance
+import api from './api'; // axios instance
 import axios from 'axios';
 const VideoCall = () => {
   const jitsiContainerRef = useRef(null);
