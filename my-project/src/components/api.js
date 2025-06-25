@@ -1,12 +1,12 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: 'https://skillswapbackend-3.onrender.com/api/v1', // include /api/v1 here
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // ✅ Keep only if you're using session/cookie-based auth
 });
+
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
