@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import api from '../api'; // axios instance with base URL
+import api from './api'; // axios instance with base URL
 
 function Badges() {
   const [badges, setBadges] = useState([]);

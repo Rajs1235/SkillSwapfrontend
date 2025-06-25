@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
-import api from '../api'; // make sure this points to your axios instance
+import api from './api'; // make sure this points to your axios instance
 import axios from 'axios';
 const levelMap = {
   Beginner: 1,
