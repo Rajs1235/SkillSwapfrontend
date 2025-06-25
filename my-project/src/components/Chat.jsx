@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
-const socket = io('http://localhost:5000'); // change if deployed
+const socket = io(import.meta.env.VITE_API_BASE_URL); // change if deployed
 
 const ChatComponent = ({ chatPartner = 'DeepSeek' }) => {
   const [messages, setMessages] = useState([

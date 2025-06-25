@@ -31,6 +31,7 @@ function ChatWindow() {
 
   useEffect(() => {
     if (!roomId || !userId) return;
+    socket.connect();
     socket.emit('join_room', { roomId, userId });
     socket.on('receive_message', (message) => {
       setMessages((prev) => [...prev, message]);
