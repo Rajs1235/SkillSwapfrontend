@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import api from './api'; // Adjust path if needed
-import axios from 'axios';
+import api from './api';
+
 function Signup() {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -29,65 +29,66 @@ function Signup() {
   };
 
   return (
-    <form
-      onSubmit={handleSignup}
-      className="w-full max-w-2xl mx-auto mt-20 bg-blue-900/80 backdrop-blur-md p-14 rounded-xl shadow-2xl text-white"
-    >
-      <h2 className="text-5xl font-bold text-center mb-12 bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 text-transparent bg-clip-text">
-        SignUp
-      </h2>
+    <div className="space-y-8 min-h-[400px] flex flex-col justify-between">
+      <div className="container">
+        <div className="form_area">
+          <p className="title">SIGN UP</p>
 
-      <div className="space-y-8 min-h-[400px] flex flex-col justify-between">
-        <div className="space-y-8">
-          <input
-            type="text"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            placeholder="Enter your Username"
-            className="w-full px-6 py-4 bg-white text-black rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none hover:ring-2 hover:ring-purple-500 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200"
-            required
-          />
+          <form onSubmit={handleSignup}>
+            <div className="form_group">
+              <label className="sub_title" htmlFor="name">Name</label>
+              <input
+                placeholder="Enter your full name"
+                id="name"
+                className="form_style"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+            </div>
 
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email"
-            className="w-full px-6 py-4 bg-white text-black rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none hover:ring-2 hover:ring-purple-500 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200"
-            required
-          />
+            <div className="form_group">
+              <label className="sub_title" htmlFor="email">Email</label>
+              <input
+                placeholder="Enter your email"
+                id="email"
+                className="form_style"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="Password"
-            className="w-full px-6 py-4 bg-white text-black rounded-xl border border-gray-300 focus:ring-2 focus:ring-purple-500 focus:outline-none hover:ring-2 hover:ring-purple-500 hover:shadow-lg hover:shadow-purple-500/30 transition-all duration-200"
-            required
-          />
+            <div className="form_group">
+              <label className="sub_title" htmlFor="password">Password</label>
+              <input
+                placeholder="Enter your password"
+                id="password"
+                className="form_style"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-          {error && (
-            <p className="text-red-300 text-center text-sm mt-2">{error}</p>
-          )}
-        </div>
+            {error && (
+              <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
+            )}
 
-        <div className="mt-8">
-          <button
-            type="submit"
-            className="w-full bg-teal-500 text-white px-6 py-4 rounded-xl hover:bg-teal-600 focus:outline-none focus:ring-2 focus:ring-teal-500 shadow-lg"
-          >
-            Signup
-          </button>
-
-          <p className="text-center text-white mt-8">
-            Already a user?{' '}
-            <Link to="/login" className="text-indigo-300 hover:underline">
-              Login
-            </Link>
-          </p>
+            <div>
+              <button type="submit" className="btn">SIGN UP</button>
+              <p>
+                Have an Account?{' '}
+                <Link className="link" to="/login">Login Here!</Link>
+              </p>
+            </div>
+          </form>
         </div>
       </div>
-    </form>
+    </div>
   );
 }
 

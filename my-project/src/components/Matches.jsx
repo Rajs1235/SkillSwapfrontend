@@ -1,31 +1,30 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import api from './api';
+
+const dummyMatches = [
+  {
+    id: 'user123',
+    name: 'Alice Johnson',
+    overlap: 78,
+  },
+  {
+    id: 'user456',
+    name: 'Bob Smith',
+    overlap: 65,
+  },
+  {
+    id: 'user789',
+    name: 'Charlie Brown',
+    overlap: 90,
+  },
+];
+
 export default function Matches() {
-  const [matches, setMatches] = useState([]);
   const navigate = useNavigate();
-  const currentUserId = localStorage.getItem('userId');
+  const currentUserId = localStorage.getItem('userId') || 'currentUser';
 
-  useEffect(() => {
-    const fetchMatches = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const res = await api.get('/v1/match', {
-  headers: { Authorization: `Bearer ${token}` },
-});
-        setMatches(res.data.matches || []);
-      } catch (err) {
-        console.error("Error fetching matches", err);
-      }
-    };
-
-    fetchMatches();
-  }, []);
-
-  // Utility: consistent room ID for both users
-  const generateRoomId = (user1, user2) => {
-    return [user1, user2].sort().join('-'); // alphabetical order = consistent room
+  const generateRoomId = (u1, u2) => {
+    return [u1, u2].sort().join('-');
   };
 
   return (
@@ -36,16 +35,16 @@ export default function Matches() {
       <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-white/20">
         <h1 className="text-3xl font-bold mb-6">📘 Your Matches</h1>
         <ul className="space-y-4">
-          {matches.map((match, i) => {
-            const roomId = generateRoomId(currentUserId, match.userId); // <- match.userId must exist in backend
+          {dummyMatches.map((match) => {
+            const roomId = generateRoomId(currentUserId, match.id);
             return (
               <li
-                key={i}
+                key={match.id}
                 className="bg-white/10 p-4 rounded-xl border border-white/20 shadow"
               >
                 <h2 className="text-xl font-semibold">{match.name}</h2>
                 <div className="flex items-center gap-4 mt-2 text-white/70">
-                  Skill Match: {match.overlap || 'N/A'}%
+                  Skill Match: {match.overlap}%
                   <button
                     onClick={() => navigate(`/chat/${roomId}`)}
                     className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
@@ -53,7 +52,7 @@ export default function Matches() {
                     💬 Chat
                   </button>
                   <button
-                    onClick={() => navigate(`/video-call/${roomId}`)}
+                    onClick={() => navigate(`/video-call/${match.id}`)}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
                   >
                     🎥 Call

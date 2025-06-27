@@ -14,7 +14,8 @@ import Dashboard from './components/Dashboard';
 import Profile from './components/Profile';
 import About from './components/About';
 import ContactUs from './components/Contact';
-
+import LearnerDashboard from './components/LearnerDashboard.jsx';
+import TutorDashboard from './components/TutorDashboard.jsx';
 // Dashboard Features
 import Enrolled from './components/Enrolled';
 
@@ -23,15 +24,20 @@ import SavedCourse from './components/SavedCourse';
 import Skillbuilder from './components/SkillBuilder';
 
 import Matches from './components/Matches';
-import TimeTracker from './components/Time'; // renamed to match route name
+import TimeTracker from './components/Time.jsx'; // renamed to match route name
 import Badges from './components/Badges';
-import Chat from './components/Chat';
-import Videocall from './components/Videocall.jsx';
+import ChatWindow from './components/ChatWindow.jsx';
+import VideoCall from './components/Videocall.jsx';
+import BrowseTutors from './components/BrowseTutor.jsx';
+import TutorCard from './components/TutorCard.jsx';
+import CertificateCard from './components/CertificateCard.jsx';
+import ReviewCard from './components/ReviewCard.jsx';
+import SubmitReview from './components/SubmitReview.jsx';
 function App() {
   return (
-    <div className="app-container min-h-screen flex flex-col">
+    <div className="app-container min-h-screen flex flex-col mt-80">
       {/* Header */}
-      <header className="mb-20 pt-8 px-4">
+      <header className="mt-50 pt-8 px-4">
         <h1 className="site-title text-4xl font-bold text-left text-transparent bg-clip-text bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
           SkillShare
         </h1>
@@ -47,11 +53,17 @@ function App() {
             <Route path="/signup" element={<Signup />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<ContactUs />} />
-
+ <Route path="/Tutor-Dashboard" element={<TutorDashboard />} />
+ <Route path="/Learner-Dashboard" element={<LearnerDashboard />} />
+  <Route path="/BrowseTutor" element={<BrowseTutors />} />
+           <Route path="/TutorCard" element={<TutorCard />} />
             {/* Authenticated Routes */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
-
+  <Route path="/CertificateCard" element={<CertificateCard />} />
+ <Route path="/Reviews" element={<ReviewCard.jsx />} />
+ <Route path="/SubmitReview" element={<SubmitReview.jsx />} />
+ 
             {/* Dashboard Subsections */}
             <Route path="/enrolled" element={<Enrolled />} />
 
@@ -62,8 +74,10 @@ function App() {
             <Route path="/matches" element={<Matches />} />
             <Route path="/time-tracker" element={<TimeTracker />} />
             <Route path="/badges" element={<Badges />} />
-            <Route path="/chat/:roomId" element={<Chat />} />
-  <Route path="/video-call/:roomId" element={<Videocall />} />
+          <Route path="/chat/:roomId" element={<ChatWindow />} />
+<Route path="/video-call/:partnerId" element={<VideoCall />} />
+
+
           </Routes>
         </BrowserRouter>
       </main>

@@ -1,95 +1,128 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { useParams } from 'react-router-dom';
-import api from './api';
-import { io } from 'socket.io-client';
+import React, { useState } from 'react';
+import { FaPaperPlane, FaSmile } from 'react-icons/fa';
+const emojiCategories = {
+  '😊': [
+    '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉',
+    '😊','😇','😍','😘','😗','😋','😜','🤪','😎','🤩',
+    '😡','😠','😤','😢','😭','😞','😱','😰','😴','😷'
+  ],
+  '❤️': [
+    '❤️','🧡','💛','💚','💙','💜','🖤','🤍','💔','💖','💘',
+    '💝','💞','💗','💓','💟','❣️','💢','💫','💥','💯'
+  ],
+  '🎉': [
+    '🎉','🎊','🎈','✨','🎇','🎆','🎁','🎂','🍰','🥳','🪅',
+    '🍕','🍔','🍟','🍿','🍩','🍫','🍪','🍷','🍻','🥂'
+  ]
+};
 
-const socket = io(import.meta.env.VITE_API_BASE_URL.replace('/api/v1', ''), { autoConnect: false });
 
-function ChatWindow() {
-  const { roomId } = useParams();
-  const userId = localStorage.getItem('userId');
-  const username = localStorage.getItem('username') || 'You';
-  const [messages, setMessages] = useState([]);
-  const [newMsg, setNewMsg] = useState('');
-  const messagesEndRef = useRef(null);
+const ChatWindow = () => {
+  const [activeTab, setActiveTab] = useState('😊');
 
-  useEffect(() => {
-    const fetchHistory = async () => {
-      try {
-        const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/v1/chat/${roomId}`);
-        const data = await res.json();
-        if (data.success) {
-          setMessages(data.messages);
-        }
-      } catch (err) {
-        console.error('Failed to fetch messages:', err);
-      }
-    };
-
-    if (roomId) fetchHistory();
-  }, [roomId]);
-
-  useEffect(() => {
-    if (!roomId || !userId) return;
-    socket.connect();
-    socket.emit('join_room', { roomId, userId });
-    socket.on('receive_message', (message) => {
-      setMessages((prev) => [...prev, message]);
-    });
-    return () => {
-      socket.emit('leave_room', { roomId, userId });
-      socket.off('receive_message');
-      socket.disconnect();
-    };
-  }, [roomId, userId]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  const [messages, setMessages] = useState([
+    { text: 'Hey there! 👋', sender: 'bot' },
+  ]);
+  const [newMessage, setNewMessage] = useState('');
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
 
   const sendMessage = () => {
-    if (newMsg.trim()) {
-      const message = {
-        roomId,
-        senderId: userId,
-        senderName: username,
-        text: newMsg,
-        timestamp: new Date().toISOString(),
-      };
-      socket.emit('send_message', message);
-      setMessages((prev) => [...prev, message]);
-      setNewMsg('');
-    }
+    if (!newMessage.trim()) return;
+    setMessages([...messages, { text: newMessage, sender: 'user' }]);
+    setNewMessage('');
+    setShowEmojiPicker(false);
+  };
+
+  const addEmoji = (emoji) => {
+    setNewMessage((prev) => prev + emoji);
   };
 
   return (
-    <div className="p-4 max-w-4xl mx-auto text-black">
-      <div className="h-96 overflow-y-auto bg-white rounded p-4 shadow-inner">
-        {messages.map((m, i) => (
-          <div key={i} className="mb-3">
-            <div className="font-semibold text-blue-700">{m.senderName}:</div>
-            <div className="text-gray-800">{m.text}</div>
-            <div className="text-xs text-gray-500 mt-1">
-              {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </div>
-          </div>
-        ))}
-        <div ref={messagesEndRef} />
+    <div className="w-[700px] h-[500px] bg-white/10 backdrop-blur-md border border-white/30 rounded-3xl shadow-2xl text-white flex flex-col overflow-hidden relative">
+
+      {/* Header */}
+      <div className="px-6 py-4 border-b border-white/20 bg-white/10">
+        <h2 className="text-xl font-semibold">John Doe</h2>
+        <p className="text-sm text-green-400">● Online</p>
       </div>
 
-      <div className="mt-4 flex">
-        <input
-          className="flex-grow p-2 border rounded"
-          value={newMsg}
-          onChange={e => setNewMsg(e.target.value)}
-          placeholder="Type your message..."
-        />
-        <button className="ml-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" onClick={sendMessage}>
-          Send
+      {/* Messages */}
+      <div className="flex-1 p-4 space-y-3 overflow-y-auto scrollbar-thin scrollbar-thumb-white/20">
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`max-w-[70%] px-4 py-2 rounded-xl ${
+              msg.sender === 'user'
+                ? 'bg-green-600 self-end ml-auto'
+                : 'bg-white/20'
+            }`}
+          >
+            {msg.text}
+          </div>
+        ))}
+      </div>
+
+     {showEmojiPicker && (
+  <div className="absolute bottom-24 left-6 z-50 w-64 bg-white/20 backdrop-blur-md p-3 rounded-xl">
+    {/* Tabs */}
+    <div className="flex justify-around mb-3">
+      {Object.keys(emojiCategories).map((cat) => (
+        <button
+          key={cat}
+          onClick={() => setActiveTab(cat)}
+          className={`text-2xl px-2 py-1 rounded-full transition ${
+            activeTab === cat
+              ? 'bg-white/30 scale-110'
+              : 'hover:bg-white/10'
+          }`}
+        >
+          {cat}
         </button>
+      ))}
+    </div>
+
+    {/* Emojis */}
+    <div className="grid grid-cols-6 gap-2 max-h-40 overflow-y-auto scrollbar-thin scrollbar-thumb-white/30">
+      {emojiCategories[activeTab].map((emoji, idx) => (
+        <button
+          key={idx}
+          onClick={() => addEmoji(emoji)}
+          className="text-xl hover:scale-125 transition"
+        >
+          {emoji}
+        </button>
+      ))}
+    </div>
+  </div>
+)}
+
+      {/* Input */}
+      <div className="p-4 border-t border-white/20 bg-white/5">
+        <div className="flex items-center bg-white/20 rounded-full px-4 py-2 backdrop-blur-md">
+          <button
+            onClick={() => setShowEmojiPicker((prev) => !prev)}
+            className="text-white hover:text-yellow-300 mr-3"
+          >
+            <FaSmile />
+          </button>
+          <input
+            type="text"
+            className="flex-1 bg-transparent outline-none text-white placeholder:text-white"
+            placeholder="Type your message..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+          />
+          <button
+            onClick={sendMessage}
+            className="ml-3 p-2 rounded-full hover:bg-green-500 hover:scale-110 transition-all duration-200"
+          >
+            <FaPaperPlane className="text-white" />
+          </button>
+        </div>
       </div>
     </div>
   );
-}
+};
 
 export default ChatWindow;

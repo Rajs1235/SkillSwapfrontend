@@ -1,26 +1,21 @@
-
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import api from './api'; // axios instance
-import axios from 'axios';
+
 const VideoCall = () => {
   const jitsiContainerRef = useRef(null);
   const apiRef = useRef(null);
+
+  const { partnerId } = useParams(); // Used to generate consistent room name
+  const currentUser = localStorage.getItem('userId') || 'user_local';
+
   const [roomId, setRoomId] = useState('');
-  const { userId: currentUser } = JSON.parse(localStorage.getItem('userData')) || {};
-  const { partnerId } = useParams(); // The other matched user's ID
 
   useEffect(() => {
-    const fetchRoomId = async () => {
-      try {
-        const res = await api.get(`/v1/match/room/${currentUser}/${partnerId}`);
-        setRoomId(res.data.roomId);
-      } catch (err) {
-        console.error('Error fetching room ID:', err);
-      }
-    };
-
-    if (currentUser && partnerId) fetchRoomId();
+    // Generate consistent room ID (for dummy or real user)
+    if (currentUser && partnerId) {
+      const generatedRoom = [currentUser, partnerId].sort().join('-');
+      setRoomId(generatedRoom);
+    }
   }, [currentUser, partnerId]);
 
   useEffect(() => {
@@ -56,7 +51,15 @@ const VideoCall = () => {
           roomName: roomId,
           parentNode: jitsiContainerRef.current,
           configOverwrite: {},
-          interfaceConfigOverwrite: { DISABLE_JOIN_LEAVE_NOTIFICATIONS: true },
+          interfaceConfigOverwrite: {
+            DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
+            TOOLBAR_BUTTONS: [
+              'microphone', 'camera', 'chat', 'raisehand', 'tileview', 'hangup'
+            ],
+          },
+          userInfo: {
+            displayName: currentUser,
+          },
         };
 
         apiRef.current = new window.JitsiMeetExternalAPI(domain, options);
@@ -77,15 +80,12 @@ const VideoCall = () => {
     };
   }, [roomId]);
 
- 
-
   return (
-    <div className=" flex justify-center items-center">
+    <div className="flex justify-center items-center">
       <div
         ref={jitsiContainerRef}
-        className="w-[80vw] h-[80vh] rounded-xl"
+        className="w-[90vw] h-[85vh] rounded-xl shadow-2xl"
       />
-
     </div>
   );
 };
