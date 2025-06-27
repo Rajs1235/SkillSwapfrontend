@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://skillswapbackend-3.onrender.com/api/v1', // include /api/v1 here
+  baseURL:process.env.VITE_API_BASE_URL, // include /api/v1 here
   headers: {
     'Content-Type': 'application/json',
   },
