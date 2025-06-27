@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from './api';
 
 function Signup() {
+   const [fullName, setfullName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -11,17 +12,17 @@ function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
-    setError('');
-
+    
     try {
       const res = await api.post('/users/register', {
+        fullName,
         username,
         email,
         password,
       });
 
       console.log('Signup successful:', res.data);
-      navigate('/login');
+      navigate('/Onboarding');
     } catch (err) {
       console.error('Signup error:', err);
       setError(err.response?.data?.message || 'Signup failed. Try again.');
@@ -36,10 +37,22 @@ function Signup() {
 
           <form onSubmit={handleSignup}>
             <div className="form_group">
-              <label className="sub_title" htmlFor="name">Name</label>
+              <label className="sub_title" htmlFor="name">FullName</label>
               <input
                 placeholder="Enter your full name"
                 id="name"
+                className="form_style"
+                type="text"
+                value={fullName}
+                onChange={(e) => setfullName(e.target.value)}
+                required
+              />
+            </div>
+      <div className="form_group">
+              <label className="sub_title" htmlFor="name">UserName</label>
+              <input
+                placeholder="Enter your Username"
+                id="username"
                 className="form_style"
                 type="text"
                 value={username}
@@ -47,7 +60,6 @@ function Signup() {
                 required
               />
             </div>
-
             <div className="form_group">
               <label className="sub_title" htmlFor="email">Email</label>
               <input

@@ -3,7 +3,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './App.css';
-
+import Onboarding from './components/Onboarding.jsx';
 // Auth Pages
 import Signup from './components/Signup';
 import Login from './components/Login';
@@ -67,10 +67,10 @@ function App() {
   <Route path="/CertificateCard" element={<CertificateCard />} />
  <Route path="/Reviews" element={<ReviewCard.jsx />} />
  <Route path="/SubmitReview" element={<SubmitReview.jsx />} />
- 
+  <Route path="/onboarding" element={<Onboarding />} />
             {/* Dashboard Subsections */}
             <Route path="/enrolled" element={<Enrolled />} />
-
+   <Route path="/onboarding" element={<Onboarding />} />
             <Route path="/progress" element={<Progress />} />
             <Route path="/savedCourse" element={<SavedCourse />} />
             <Route path="/skillbuilder" element={<Skillbuilder />} />

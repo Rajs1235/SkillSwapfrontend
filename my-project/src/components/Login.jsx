@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from './api';
 
 function Login() {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -13,13 +13,17 @@ function Login() {
     setError('');
 
     try {
-      const response = await api.post('/v1/users/login', { email, password });
-      console.log('Login success:', response.data);
+      const response = await api.post("/users/login", { username, password });
+      console.log("Token received:", response.data);
 
-      // Store token if needed
-      localStorage.setItem('token', response.data.token);
+      // ✅ Save the access token correctly
+      localStorage.setItem("token", response.data.data.accesstoken);
 
-      navigate('/dashboard');
+      // Optionally save user info or refresh token if needed
+      // localStorage.setItem("user", JSON.stringify(response.data.data.user));
+      // localStorage.setItem("refreshToken", response.data.data.refreshtoken);
+
+      navigate('/Onboarding');
     } catch (err) {
       console.error('Login failed:', err);
       setError(err.response?.data?.message || 'Login failed. Please try again.');
@@ -34,14 +38,14 @@ function Login() {
 
           <form onSubmit={handleLogin}>
             <div className="form_group">
-              <label className="sub_title" htmlFor="email">Email</label>
+              <label className="sub_title" htmlFor="email">Username</label>
               <input
-                id="email"
+                id="username"
                 className="form_style"
-                type="email"
-                placeholder="Enter your email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                type="text"
+                placeholder="Enter your username"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
                 required
               />
             </div>
@@ -78,3 +82,4 @@ function Login() {
 }
 
 export default Login;
+
