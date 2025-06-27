@@ -33,8 +33,12 @@ import TutorCard from './components/TutorCard.jsx';
 import CertificateCard from './components/CertificateCard.jsx';
 import ReviewCard from './components/ReviewCard.jsx';
 import SubmitReview from './components/SubmitReview.jsx';
-function App() {
+  
+function App() { 
+
+    console.log(import.meta.env.VITE_API_BASE_URL);
   return (
+   
     <div className="app-container min-h-screen flex flex-col mt-80">
       {/* Header */}
       <header className="mt-50 pt-8 px-4">
