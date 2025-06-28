@@ -11,7 +11,7 @@ import {
 } from 'react-icons/si';
 import { GiMicrophone, GiDrum } from 'react-icons/gi';
 
-// Skill categories data
+// Skill categories
 const skillCategories = {
   programming: [
     { name: 'Python', icon: <FaPython /> },
@@ -61,94 +61,93 @@ const Onboarding = () => {
     firstName: '',
     lastName: '',
     role: 'Learner',
-    learnSkills: []
+    skills: []
   });
   const [selectedCategories, setSelectedCategories] = useState([]);
   const navigate = useNavigate();
 
-  const handleNext = (data) => {
-    setFormData((prev) => ({ ...prev, ...data }));
-    setStep(step + 1);
-  };
-
   const toggleCategory = (category) => {
     setSelectedCategories(prev =>
-      prev.includes(category) 
-        ? prev.filter(c => c !== category) 
+      prev.includes(category)
+        ? prev.filter(c => c !== category)
         : [...prev, category]
     );
   };
 
   const toggleSkill = (skillName) => {
     setFormData(prev => {
-      const newSkills = prev.learnSkills.includes(skillName)
-        ? prev.learnSkills.filter(skill => skill !== skillName)
-        : [...prev.learnSkills, skillName];
-      return { ...prev, learnSkills: newSkills };
+      const updatedSkills = prev.skills.includes(skillName)
+        ? prev.skills.filter(skill => skill !== skillName)
+        : [...prev.skills, skillName];
+      return { ...prev, skills: updatedSkills };
     });
   };
-const handleComplete = async () => {
-  try {
-    const response = await fetch(
-      `${import.meta.env.VITE_API_BASE_URL}/users/profile`, // ✅ correct endpoint
-      {
-        method: "PUT", // ✅ correct method
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          role: formData.role,
-          learnSkills: formData.learnSkills, // ✅ must match backend expected key
-          onboardingComplete: true,
-        }),
+
+  const getSkillsForView = () => {
+    const allSkills = new Map();
+    selectedCategories.forEach(category => {
+      skillCategories[category]?.forEach(skill => allSkills.set(skill.name, skill));
+    });
+    formData.skills.forEach(skillName => {
+      if (!allSkills.has(skillName)) {
+        for (const category of Object.values(skillCategories)) {
+          const match = category.find(skill => skill.name === skillName);
+          if (match) {
+            allSkills.set(skillName, match);
+            break;
+          }
+        }
       }
-    );
+    });
+    return Array.from(allSkills.values());
+  };
+
+  const handleNext = () => setStep(step + 1);
+  const handleBack = () => setStep(step - 1);
+
+  const handleComplete = async () => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      throw new Error("User not authenticated. Please log in again.");
+    }
+
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/profile`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        role: formData.role,
+        skills: formData.skills,
+        onboardingComplete: true,
+      }),
+    });
 
     const contentType = response.headers.get("content-type");
-    let responseData;
+    let data;
 
     if (contentType && contentType.includes("application/json")) {
-      responseData = await response.json();
+      data = await response.json();
     } else {
       const text = await response.text();
       throw new Error(`Server returned: ${text.substring(0, 100)}...`);
     }
 
     if (!response.ok) {
-      throw new Error(responseData.message || `HTTP error! status: ${response.status}`);
+      throw new Error(data.message || `HTTP ${response.status}`);
     }
 
-    localStorage.setItem("userProfile", JSON.stringify(responseData.user));
+    localStorage.setItem("userProfile", JSON.stringify(data.user));
     navigate("/dashboard", { state: { onboardingSuccess: true } });
   } catch (err) {
     console.error("Onboarding failed:", err);
-    alert(`Onboarding failed: ${err.message}`);
+    alert("Onboarding failed: " + err.message);
   }
 };
-
-  // Get skills based on selected categories
-  const getSkillsForView = () => {
-    const skills = new Map();
-    selectedCategories.forEach(category => {
-      skillCategories[category]?.forEach(skill => skills.set(skill.name, skill));
-    });
-    formData.learnSkills.forEach(skillName => {
-      if (!skills.has(skillName)) {
-        // Find the skill in any category
-        for (const category of Object.values(skillCategories)) {
-          const found = category.find(s => s.name === skillName);
-          if (found) {
-            skills.set(skillName, found);
-            break;
-          }
-        }
-      }
-    });
-    return Array.from(skills.values());
-  };
 
   return (
     <div className="max-w-xl mx-auto mt-10 p-6 bg-white rounded-2xl shadow-lg">
@@ -160,25 +159,25 @@ const handleComplete = async () => {
               <label className="block mb-2 font-semibold">First Name</label>
               <input
                 value={formData.firstName}
-                onChange={(e) => setFormData(prev => ({...prev, firstName: e.target.value}))}
-                placeholder="Enter your first name"
+                onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
                 className="w-full px-4 py-2 bg-gray-100 rounded-lg border"
+                placeholder="Enter your first name"
               />
             </div>
             <div>
               <label className="block mb-2 font-semibold">Last Name</label>
               <input
                 value={formData.lastName}
-                onChange={(e) => setFormData(prev => ({...prev, lastName: e.target.value}))}
-                placeholder="Enter your last name"
+                onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
                 className="w-full px-4 py-2 bg-gray-100 rounded-lg border"
+                placeholder="Enter your last name"
               />
             </div>
             <div>
               <label className="block mb-2 font-semibold">Select Role</label>
               <select
                 value={formData.role}
-                onChange={(e) => setFormData(prev => ({...prev, role: e.target.value}))}
+                onChange={(e) => setFormData(prev => ({ ...prev, role: e.target.value }))}
                 className="w-full px-4 py-2 rounded bg-white border border-gray-300"
               >
                 <option value="Learner">Learner</option>
@@ -187,7 +186,7 @@ const handleComplete = async () => {
             </div>
           </div>
           <button
-            onClick={() => handleNext({})}
+            onClick={handleNext}
             className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700"
           >
             Next
@@ -200,25 +199,22 @@ const handleComplete = async () => {
           <h2 className="text-2xl font-bold text-center">
             {formData.role === 'Tutor' ? 'Skills You Can Teach' : 'Skills You Want to Learn'}
           </h2>
-          
-          <div>
-            <label className="block mb-2 font-semibold">Select Categories</label>
-            <div className="flex flex-wrap gap-2 mb-4">
-              {Object.keys(skillCategories).map((cat) => (
-                <button
-                  key={cat}
-                  type="button"
-                  onClick={() => toggleCategory(cat)}
-                  className={`px-3 py-1 rounded-full border text-sm ${
-                    selectedCategories.includes(cat) 
-                      ? 'bg-purple-600 text-white' 
-                      : 'bg-white text-black'
-                  }`}
-                >
-                  {cat.charAt(0).toUpperCase() + cat.slice(1).replace('-', ' ')}
-                </button>
-              ))}
-            </div>
+          <label className="block mb-2 font-semibold">Select Categories</label>
+          <div className="flex flex-wrap gap-2 mb-4">
+            {Object.keys(skillCategories).map((cat) => (
+              <button
+                key={cat}
+                type="button"
+                onClick={() => toggleCategory(cat)}
+                className={`px-3 py-1 rounded-full border text-sm ${
+                  selectedCategories.includes(cat)
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-white text-black'
+                }`}
+              >
+                {cat.charAt(0).toUpperCase() + cat.slice(1)}
+              </button>
+            ))}
           </div>
 
           <div className="flex flex-wrap gap-2">
@@ -228,9 +224,9 @@ const handleComplete = async () => {
                 type="button"
                 onClick={() => toggleSkill(name)}
                 className={`px-3 py-1 rounded-full border flex items-center gap-1 ${
-                  formData.learnSkills.includes(name)
-                    ? formData.role === 'Tutor' 
-                      ? 'bg-green-600 text-white' 
+                  formData.skills.includes(name)
+                    ? formData.role === 'Tutor'
+                      ? 'bg-green-600 text-white'
                       : 'bg-purple-500 text-white'
                     : 'bg-white text-black'
                 }`}
@@ -242,13 +238,13 @@ const handleComplete = async () => {
 
           <div className="flex justify-between">
             <button
-              onClick={() => setStep(step - 1)}
+              onClick={handleBack}
               className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
             >
               Back
             </button>
             <button
-              onClick={() => handleNext({})}
+              onClick={handleNext}
               className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
             >
               Next
@@ -260,35 +256,29 @@ const handleComplete = async () => {
       {step === 3 && (
         <div className="space-y-6">
           <h2 className="text-2xl font-bold text-center">Review Your Information</h2>
-          
           <div className="space-y-4">
             <div>
               <h3 className="font-semibold">Name:</h3>
               <p>{formData.firstName} {formData.lastName}</p>
             </div>
-            
             <div>
               <h3 className="font-semibold">Role:</h3>
               <p>{formData.role}</p>
             </div>
-            
             <div>
-              <h3 className="font-semibold">
-                {formData.role === 'Tutor' ? 'Teaching Skills:' : 'Learning Goals:'}
-              </h3>
+              <h3 className="font-semibold">{formData.role === 'Tutor' ? 'Teaching Skills:' : 'Learning Goals:'}</h3>
               <div className="flex flex-wrap gap-2">
-                {formData.learnSkills.map((skill, i) => (
-                  <span key={i} className="px-2 py-1 bg-gray-200 rounded-full">
+                {formData.skills.map((skill, idx) => (
+                  <span key={idx} className="px-2 py-1 bg-gray-200 rounded-full">
                     {skill}
                   </span>
                 ))}
               </div>
             </div>
           </div>
-
           <div className="flex justify-between">
             <button
-              onClick={() => setStep(step - 1)}
+              onClick={handleBack}
               className="bg-gray-500 text-white px-4 py-2 rounded-lg hover:bg-gray-600"
             >
               Back

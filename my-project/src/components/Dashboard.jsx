@@ -74,7 +74,7 @@ function Dashboard() {
 
   const sidebarItems = [
     { name: 'Enrolled Classes', slug: '/enrolled', icon: '🧑‍🏫', active: true },
-    { name: 'Browse Tutors', slug: '/BrowseTutor', icon: '🗂', active: true },
+    { name: 'Browse Users', slug: '/BrowseUser', icon: '🗂', active: true },
     { name: 'Learner Dashboard', slug: '/learner-dashboard', icon: '📚', active: true },
     { name: 'Tutor Dashboard', slug: '/tutor-dashboard', icon: '👨‍🏫', active: true },
   ];

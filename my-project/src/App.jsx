@@ -7,7 +7,7 @@ import Onboarding from './components/Onboarding.jsx';
 // Auth Pages
 import Signup from './components/Signup';
 import Login from './components/Login';
-
+import Postings from './components/Postings.jsx';
 // Core Pages
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
@@ -28,8 +28,8 @@ import TimeTracker from './components/Time.jsx'; // renamed to match route name
 import Badges from './components/Badges';
 import ChatWindow from './components/ChatWindow.jsx';
 import VideoCall from './components/Videocall.jsx';
-import BrowseTutors from './components/BrowseTutor.jsx';
-import TutorCard from './components/TutorCard.jsx';
+import BrowseUser from './components/BrowseUser.jsx';
+import UserCard from './components/UserCard.jsx';
 import CertificateCard from './components/CertificateCard.jsx';
 import ReviewCard from './components/ReviewCard.jsx';
 import SubmitReview from './components/SubmitReview.jsx';
@@ -59,8 +59,8 @@ function App() {
             <Route path="/contact" element={<ContactUs />} />
  <Route path="/Tutor-Dashboard" element={<TutorDashboard />} />
  <Route path="/Learner-Dashboard" element={<LearnerDashboard />} />
-  <Route path="/BrowseTutor" element={<BrowseTutors />} />
-           <Route path="/TutorCard" element={<TutorCard />} />
+  <Route path="/BrowseUser" element={<BrowseUser />} />
+           <Route path="/UserCard" element={<UserCard />} />
             {/* Authenticated Routes */}
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/profile" element={<Profile />} />
@@ -74,7 +74,7 @@ function App() {
             <Route path="/progress" element={<Progress />} />
             <Route path="/savedCourse" element={<SavedCourse />} />
             <Route path="/skillbuilder" element={<Skillbuilder />} />
-        
+        <Route path="/postings" element={<Postings />} />
             <Route path="/matches" element={<Matches />} />
             <Route path="/time-tracker" element={<TimeTracker />} />
             <Route path="/badges" element={<Badges />} />
