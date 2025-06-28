@@ -84,7 +84,7 @@ function Profile() {
       try {
         setIsLoading(true);
         const response = await api.get('/users/profile');
-        const userData = response.data?.user || response.data;
+        const userData =response.data;
 
         if (!userData || !userData.firstName) throw new Error("Invalid profile data received");
 
