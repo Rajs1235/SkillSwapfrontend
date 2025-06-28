@@ -1,20 +1,27 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
+import sha256 from 'crypto-js/sha256'; // npm install crypto-js
+import Hex from 'crypto-js/enc-hex';
+
 const VideoCall = () => {
   const jitsiContainerRef = useRef(null);
   const apiRef = useRef(null);
 
-  const { partnerId } = useParams(); // Used to generate consistent room name
-  const currentUser = localStorage.getItem('userId') || 'user_local';
+  const { partnerId } = useParams();
+  const currentUser = localStorage.getItem('userId');
 
   const [roomId, setRoomId] = useState('');
 
+  const generateRoomId = (u1, u2) => {
+    const sorted = [u1, u2].sort().join('-');
+    return sha256(sorted).toString(Hex).slice(0, 16); // mimic backend
+  };
+
   useEffect(() => {
-    // Generate consistent room ID (for dummy or real user)
     if (currentUser && partnerId) {
-      const generatedRoom = [currentUser, partnerId].sort().join('-');
-      setRoomId(generatedRoom);
+      const generated = generateRoomId(currentUser, partnerId);
+      setRoomId(generated);
     }
   }, [currentUser, partnerId]);
 
@@ -25,10 +32,7 @@ const VideoCall = () => {
 
     const loadJitsiScript = () => {
       return new Promise((resolve, reject) => {
-        if (window.JitsiMeetExternalAPI) {
-          resolve();
-          return;
-        }
+        if (window.JitsiMeetExternalAPI) return resolve();
 
         const script = document.createElement('script');
         script.src = 'https://meet.jit.si/external_api.js';
@@ -50,13 +54,6 @@ const VideoCall = () => {
         const options = {
           roomName: roomId,
           parentNode: jitsiContainerRef.current,
-          configOverwrite: {},
-          interfaceConfigOverwrite: {
-            DISABLE_JOIN_LEAVE_NOTIFICATIONS: true,
-            TOOLBAR_BUTTONS: [
-              'microphone', 'camera', 'chat', 'raisehand', 'tileview', 'hangup'
-            ],
-          },
           userInfo: {
             displayName: currentUser,
           },
@@ -64,18 +61,12 @@ const VideoCall = () => {
 
         apiRef.current = new window.JitsiMeetExternalAPI(domain, options);
       })
-      .catch((error) => {
-        console.error('Failed to load Jitsi API', error);
-      });
+      .catch(console.error);
 
     return () => {
       if (apiRef.current) {
         apiRef.current.dispose();
         apiRef.current = null;
-      }
-      if (scriptAdded) {
-        const existingScript = document.querySelector('script[src="https://meet.jit.si/external_api.js"]');
-        if (existingScript) existingScript.remove();
       }
     };
   }, [roomId]);

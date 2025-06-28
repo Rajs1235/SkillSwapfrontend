@@ -15,7 +15,8 @@ function Login() {
     try {
       const response = await api.post("/users/login", { username, password });
       console.log("Token received:", response.data);
-
+localStorage.setItem('userId', user._id);
+localStorage.setItem('userProfile', JSON.stringify(user));
       // ✅ Save the access token correctly
       localStorage.setItem("token", response.data.data.accesstoken);
 
