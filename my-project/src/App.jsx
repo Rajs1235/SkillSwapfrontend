@@ -79,7 +79,7 @@ function App() {
             <Route path="/time-tracker" element={<TimeTracker />} />
             <Route path="/badges" element={<Badges />} />
           <Route path="/chat/:roomId" element={<ChatWindow />} />
-<Route path="/video-call/:partnerId" element={<VideoCall />} />
+<Route path="/video-call" element={<VideoCall />} />
 
 
           </Routes>
