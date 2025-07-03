@@ -1,37 +1,29 @@
 import React from 'react';
-import { FaCheckCircle, FaComments, FaVideo } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
 
 const UserCard = ({ user }) => {
-  const navigate = useNavigate();
-
   return (
-    <div className="bg-white rounded-lg shadow-md p-5 flex flex-col justify-between h-full">
-      <div>
-        <h2 className="text-xl font-semibold flex items-center gap-2">
-          {user.name}
-          {user.isVerifiedTutor && (
-            <FaCheckCircle className="text-green-500" title="Verified Tutor" />
-          )}
-        </h2>
-        <p className="mt-2 text-sm text-gray-600">
-          {user.knownSkills?.length > 0
-            ? user.knownSkills.join(', ')
-            : 'No skills listed.'}
-        </p>
+    <div className="bg-white rounded-lg p-4 shadow-md">
+      <div className="text-xl font-semibold mb-1">{user.name}</div>
+      <div className="text-sm text-gray-600 mb-2">Role: {user.role}</div>
+      <div className="flex flex-wrap gap-2 mb-2">
+        {user.skills?.map((skill, i) => (
+          <span key={i} className="bg-gray-100 text-sm px-2 py-1 rounded-full">
+            {skill}
+          </span>
+        ))}
       </div>
-      <div className="mt-4 flex gap-3">
+      <div className="flex gap-2">
         <button
-          onClick={() => navigate(`/chat/${user._id}`)}
-          className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center gap-2"
+          className="px-3 py-1 bg-blue-500 text-white rounded hover:bg-blue-600"
+          onClick={() => window.location.href = `/chat?user=${user.user}`}
         >
-          <FaComments /> Chat
+          Chat
         </button>
         <button
-          onClick={() => navigate(`/videocall/${user._id}`)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 flex items-center gap-2"
+          className="px-3 py-1 bg-green-500 text-white rounded hover:bg-green-600"
+          onClick={() => window.location.href = `/videocall?user=${user.user}`}
         >
-          <FaVideo /> Call
+          Call
         </button>
       </div>
     </div>

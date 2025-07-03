@@ -13,10 +13,10 @@ function Login() {
     setError('');
 
     try {
-      const response = await api.post("/users/login", { username, password });
+      const response = await api.post("/login", { username, password });
       console.log("Token received:", response.data);
-localStorage.setItem('userId', user._id);
-localStorage.setItem('userProfile', JSON.stringify(user));
+localStorage.setItem('userId', response.data.data.user._id);
+localStorage.setItem('userProfile', JSON.stringify(response.data.data.user));
       // ✅ Save the access token correctly
       localStorage.setItem("token", response.data.data.accesstoken);
 

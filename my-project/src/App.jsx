@@ -7,7 +7,7 @@ import Onboarding from './components/Onboarding.jsx';
 // Auth Pages
 import Signup from './components/Signup';
 import Login from './components/Login';
-import Postings from './components/Postings.jsx';
+
 // Core Pages
 import Home from './components/Home';
 import Dashboard from './components/Dashboard';
@@ -22,7 +22,7 @@ import Enrolled from './components/Enrolled';
 import Progress from './components/Progress';
 import SavedCourse from './components/SavedCourse';
 import Skillbuilder from './components/SkillBuilder';
-
+import Postings from './components/Postings.jsx';
 import Matches from './components/Matches';
 import TimeTracker from './components/Time.jsx'; // renamed to match route name
 import Badges from './components/Badges';
@@ -59,7 +59,7 @@ function App() {
             <Route path="/contact" element={<ContactUs />} />
  <Route path="/Tutor-Dashboard" element={<TutorDashboard />} />
  <Route path="/Learner-Dashboard" element={<LearnerDashboard />} />
-  <Route path="/BrowseUser" element={<BrowseUser />} />
+  <Route path="/BrowseUser" element={<Postings />} />
            <Route path="/UserCard" element={<UserCard />} />
             {/* Authenticated Routes */}
             <Route path="/dashboard" element={<Dashboard />} />
