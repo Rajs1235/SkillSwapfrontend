@@ -38,7 +38,7 @@ const TutorDashboard = ({
   const handleEvaluate = async () => {
     setLoadingEval(true);
     try {
-      const res = await api.post('/v1/evaluation/run', {
+      const res = await api.post('/api/v1/users/evaluation/run', {
         userId: localStorage.getItem('userId'),
         role: 'tutor',
         skills,

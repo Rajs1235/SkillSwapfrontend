@@ -63,7 +63,7 @@ function Profile() {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-       const response = await api.get('/users/profile');
+       const response = await api.get('/api/v1/users/profile');
 
         console.log('API Response:', JSON.stringify(response.data, null, 2));
 

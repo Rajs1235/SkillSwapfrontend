@@ -13,7 +13,7 @@ function Login() {
     setError('');
 
     try {
-      const response = await api.post("/login", { username, password });
+     const response = await api.post("/api/v1/users/login", { username, password });
       console.log("Token received:", response.data);
 localStorage.setItem('userId', response.data.data.user._id);
 localStorage.setItem('userProfile', JSON.stringify(response.data.data.user));
@@ -24,7 +24,7 @@ localStorage.setItem('userProfile', JSON.stringify(response.data.data.user));
       // localStorage.setItem("user", JSON.stringify(response.data.data.user));
       // localStorage.setItem("refreshToken", response.data.data.refreshtoken);
 
-      navigate('/Onboarding');
+      
     } catch (err) {
       console.error('Login failed:', err);
       setError(err.response?.data?.message || 'Login failed. Please try again.');

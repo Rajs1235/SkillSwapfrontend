@@ -18,7 +18,7 @@ export default function Matches() {
     const fetchMatches = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await api.get('/users/all');
+        const res = await api.get('/api/v1/users/all');
 
         const allUsers = res.data;
         const currentSkills = currentUser?.skills || [];

@@ -2,28 +2,6 @@ import React, { useEffect, useState } from 'react';
 import api from './api';
 import UserCard from './UserCard';
 
-
-const sampleUsers = [
-  {
-    _id: '1',
-    name: 'Alice Johnson',
-    knownSkills: ['React', 'JavaScript', 'UI/UX'],
-    isVerifiedTutor: true,
-  },
-  {
-    _id: '2',
-    name: 'David Smith',
-    knownSkills: ['Python', 'Machine Learning'],
-    isVerifiedTutor: false,
-  },
-  {
-    _id: '3',
-    name: 'Ravi Kumar',
-    knownSkills: ['Java', 'Data Structures'],
-    isVerifiedTutor: true,
-  },
-];
-
 function BrowseUsers() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
@@ -33,15 +11,17 @@ function BrowseUsers() {
     const fetchUsers = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await api.get('/v1/users/all', {
+        const res = await api.get('/matchlistings', {
           headers: { Authorization: `Bearer ${token}` }
         });
-        setUsers(res.data);
-        setFilteredUsers(res.data);
+
+        const currentUserId = localStorage.getItem('userId');
+        const data = res.data.filter(u => u.user !== currentUserId); // Remove self
+
+        setUsers(data);
+        setFilteredUsers(data);
       } catch (err) {
-        console.warn('Failed to load from API, using sample data.');
-        setUsers(sampleUsers);
-        setFilteredUsers(sampleUsers);
+        console.error('Failed to load match listings:', err);
       }
     };
 
@@ -55,7 +35,7 @@ function BrowseUsers() {
       setFilteredUsers(users);
     } else {
       const filtered = users.filter(user =>
-        user.knownSkills?.some(skill => skill.toLowerCase().includes(value))
+        user.skills?.some(skill => skill.toLowerCase().includes(value))
       );
       setFilteredUsers(filtered);
     }
@@ -78,7 +58,7 @@ function BrowseUsers() {
           <p className="text-white text-center col-span-full">No users found.</p>
         ) : (
           filteredUsers.map((user) => (
-            <UserCard key={user._id} user={user} />
+            <UserCard key={user.user} user={user} />
           ))
         )}
       </div>

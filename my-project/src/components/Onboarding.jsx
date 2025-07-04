@@ -104,15 +104,15 @@ const Onboarding = () => {
 
   const handleNext = () => setStep(step + 1);
   const handleBack = () => setStep(step - 1);
-
-  const handleComplete = async () => {
+const handleComplete = async () => {
   try {
     const token = localStorage.getItem("token");
     if (!token) {
       throw new Error("User not authenticated. Please log in again.");
     }
 
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/users/profile`, {
+    // 1. Update user profile
+    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/users/profile`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -141,8 +141,28 @@ const Onboarding = () => {
       throw new Error(data.message || `HTTP ${response.status}`);
     }
 
+    // ✅ 2. Create match listing
+    const listingRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/matchlistings`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        role: formData.role,
+        skills: formData.skills
+      }),
+    });
+
+    const listingData = await listingRes.json();
+    if (!listingRes.ok) {
+      throw new Error(listingData.message || "Failed to create match listing");
+    }
+
+    // ✅ 3. Store user data and redirect
     localStorage.setItem("userProfile", JSON.stringify(data.user));
     navigate("/dashboard", { state: { onboardingSuccess: true } });
+
   } catch (err) {
     console.error("Onboarding failed:", err);
     alert("Onboarding failed: " + err.message);

@@ -31,7 +31,7 @@ function SkillBuilder() {
   useEffect(() => {
     const fetchSkills = async () => {
       try {
-        const res = await api.get(`/v1/users/profile/${userId}`);
+        const res = await api.get(`/api/v1/users/profile/${userId}`);
         const { teachSkills = [], learnSkills = [], ...rest } = res.data || {};
 
         const teachSet = new Set(teachSkills);
