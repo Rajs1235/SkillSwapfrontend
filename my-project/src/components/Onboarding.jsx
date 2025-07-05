@@ -10,7 +10,7 @@ import {
   SiMysql, SiTypescript
 } from 'react-icons/si';
 import { GiMicrophone, GiDrum } from 'react-icons/gi';
-
+import api from "./api";
 // Skill categories
 const skillCategories = {
   programming: [
@@ -107,65 +107,38 @@ const Onboarding = () => {
 const handleComplete = async () => {
   try {
     const token = localStorage.getItem("token");
-    if (!token) {
-      throw new Error("User not authenticated. Please log in again.");
-    }
+    if (!token) throw new Error("User not authenticated. Please log in again.");
 
     // 1. Update user profile
-    const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/users/profile`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
+    const profileRes = await api.put(
+      "/users/profile",
+      {
         firstName: formData.firstName,
         lastName: formData.lastName,
         role: formData.role,
         skills: formData.skills,
-        onboardingComplete: true,
-      }),
-    });
-
-    const contentType = response.headers.get("content-type");
-    let data;
-
-    if (contentType && contentType.includes("application/json")) {
-      data = await response.json();
-    } else {
-      const text = await response.text();
-      throw new Error(`Server returned: ${text.substring(0, 100)}...`);
-    }
-
-    if (!response.ok) {
-      throw new Error(data.message || `HTTP ${response.status}`);
-    }
-
-    // ✅ 2. Create match listing
-    const listingRes = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/v1/matchlistings`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        onboardingComplete: true
       },
-      body: JSON.stringify({
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    // 2. Create match listing
+    await api.post(
+      "/matchlistings",
+      {
         role: formData.role,
         skills: formData.skills
-      }),
-    });
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
 
-    const listingData = await listingRes.json();
-    if (!listingRes.ok) {
-      throw new Error(listingData.message || "Failed to create match listing");
-    }
-
-    // ✅ 3. Store user data and redirect
-    localStorage.setItem("userProfile", JSON.stringify(data.user));
+    // 3. Save updated profile in localStorage and redirect
+    localStorage.setItem("userProfile", JSON.stringify(profileRes.data.user));
     navigate("/dashboard", { state: { onboardingSuccess: true } });
 
   } catch (err) {
     console.error("Onboarding failed:", err);
-    alert("Onboarding failed: " + err.message);
+    alert("Onboarding failed: " + (err.response?.data?.message || err.message));
   }
 };
 

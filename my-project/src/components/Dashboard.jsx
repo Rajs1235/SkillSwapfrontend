@@ -30,27 +30,6 @@ function Dashboard() {
     }
   }, [location.state]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [matchesRes, timeRes, badgesRes, reviewRes] = await Promise.all([
-          api.get(`/v1/matches/${userId}`),
-          api.get(`/v1/timetracker/${userId}`),
-          api.get(`/v1/badges/${userId}`),
-          api.get(`/v1/reviews/tutor/${userId}`),
-        ]);
-
-        setMatchCount(matchesRes.data?.length || 0);
-        setTotalTime(timeRes.data?.totalHours || 0);
-        setBadgeCount(badgesRes.data?.badges?.length || 0);
-        setReviews(reviewRes.data?.reviews || []);
-      } catch (err) {
-        console.error('Dashboard load error:', err);
-      }
-    };
-
-    if (userId) fetchData();
-  }, [userId]);
 
   const logoutHandler = () => {
     localStorage.removeItem('token');

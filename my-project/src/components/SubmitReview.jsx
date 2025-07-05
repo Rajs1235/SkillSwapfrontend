@@ -31,7 +31,7 @@ const SubmitReviewCard = ({ tutorId, onSuccess }) => {
     }
 
     try {
-      await api.post('/api/v1/users/reviews', {
+      await api.post('/users/reviews', {
         tutorId,
         reviewerId,
         rating,

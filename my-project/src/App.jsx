@@ -59,7 +59,7 @@ function App() {
             <Route path="/contact" element={<ContactUs />} />
  <Route path="/Tutor-Dashboard" element={<TutorDashboard />} />
  <Route path="/Learner-Dashboard" element={<LearnerDashboard />} />
-  <Route path="/BrowseUser" element={<Postings />} />
+  <Route path="/BrowseUser" element={<BrowseUser />} />
            <Route path="/UserCard" element={<UserCard />} />
             {/* Authenticated Routes */}
             <Route path="/dashboard" element={<Dashboard />} />
@@ -79,7 +79,8 @@ function App() {
             <Route path="/time-tracker" element={<TimeTracker />} />
             <Route path="/badges" element={<Badges />} />
           <Route path="/chat/:roomId" element={<ChatWindow />} />
-<Route path="/video-call/1" element={<VideoCall />} />
+<Route path="/video-call/:partnerId" element={<VideoCall />} />
+
 
 
           </Routes>

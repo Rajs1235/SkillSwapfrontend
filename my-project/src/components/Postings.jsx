@@ -10,7 +10,7 @@ const Postings = () => {
 
   const fetchUsers = async () => {
     try {
-      const res = await api.get("/api/v1/users/matchlistings", {
+      const res = await api.get("/matchlistings", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

@@ -13,21 +13,30 @@ function Login() {
     setError('');
 
     try {
-     const response = await api.post("/api/v1/users/login", { username, password });
-      console.log("Token received:", response.data);
-localStorage.setItem('userId', response.data.data.user._id);
-localStorage.setItem('userProfile', JSON.stringify(response.data.data.user));
-      // ✅ Save the access token correctly
-      localStorage.setItem("token", response.data.data.accesstoken);
+      const response = await api.post("/users/login", { username, password });
 
-      // Optionally save user info or refresh token if needed
-      // localStorage.setItem("user", JSON.stringify(response.data.data.user));
-      // localStorage.setItem("refreshToken", response.data.data.refreshtoken);
+      const { user, accesstoken, refreshtoken } = response.data.data;
+      console.log("Login successful. Access token:", accesstoken);
 
-      
+      if (!accesstoken) {
+        throw new Error("Access token missing in response.");
+      }
+
+      // ✅ Store tokens and user data
+      localStorage.setItem("token", accesstoken);
+      localStorage.setItem("refreshToken", refreshtoken); // optional
+      localStorage.setItem("userProfile", JSON.stringify(user));
+      localStorage.setItem("userId", user._id);
+
+      // ✅ Redirect based on onboarding status
+      if (user.onboardingComplete) {
+        navigate("/dashboard");
+      } else {
+        navigate("/onboarding");
+      }
     } catch (err) {
-      console.error('Login failed:', err);
-      setError(err.response?.data?.message || 'Login failed. Please try again.');
+      console.error("Login failed:", err);
+      setError(err.response?.data?.message || "Login failed. Please try again.");
     }
   };
 
@@ -39,7 +48,7 @@ localStorage.setItem('userProfile', JSON.stringify(response.data.data.user));
 
           <form onSubmit={handleLogin}>
             <div className="form_group">
-              <label className="sub_title" htmlFor="email">Username</label>
+              <label className="sub_title" htmlFor="username">Username</label>
               <input
                 id="username"
                 className="form_style"
@@ -83,4 +92,3 @@ localStorage.setItem('userProfile', JSON.stringify(response.data.data.user));
 }
 
 export default Login;
-

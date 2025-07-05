@@ -10,7 +10,7 @@ const EvaluationForm = ({ role = 'learner' }) => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await api.post('/api/v1/users/evaluation/submit', {
+      const res = await api.post('/users/evaluation/submit', {
         role,
         skill,
         answer

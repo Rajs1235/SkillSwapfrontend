@@ -8,7 +8,7 @@ function Progress() {
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const res = await api.get('/api/v1/users/progress');
+        const res = await api.get('/users/progress');
         const formatted = res.data?.progress?.map((item) => ({
           title: item.courseName,
           data: [

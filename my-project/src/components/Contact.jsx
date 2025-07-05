@@ -8,7 +8,7 @@ function ContactUs() {
 
 const onSubmit = async (data) => {
   try {
-    const res = await api.post('/api/v1/users/feedback', data);
+    const res = await api.post('/users/feedback', data);
     console.log(res.data);
     setIsSubmitted(true);
   } catch (error) {

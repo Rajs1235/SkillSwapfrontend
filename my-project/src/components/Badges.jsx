@@ -9,7 +9,7 @@ function Badges() {
   useEffect(() => {
     const fetchBadges = async () => {
       try {
-        const res = await api.get(`/v1/users/badges/${userId}`);
+        const res = await api.get(`/users/badges/${userId}`);
         setBadges(res.data.badges || []);
       } catch (err) {
         console.error('Failed to fetch badges:', err);

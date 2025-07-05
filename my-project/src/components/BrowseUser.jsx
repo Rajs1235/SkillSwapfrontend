@@ -5,41 +5,82 @@ import UserCard from './UserCard';
 function BrowseUsers() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
+  const [connectedUserIds, setConnectedUserIds] = useState([]);
   const [searchSkill, setSearchSkill] = useState('');
+  const [loading, setLoading] = useState(true);
+
+  const currentUserId = localStorage.getItem('userId');
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchData = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await api.get('/matchlistings', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
 
-        const currentUserId = localStorage.getItem('userId');
-        const data = res.data.filter(u => u.user !== currentUserId); // Remove self
+        const [allUsersRes, connectionsRes] = await Promise.all([
+          api.get('/users/all', { headers: { Authorization: `Bearer ${token}` } }),
+          api.get('/connections', { headers: { Authorization: `Bearer ${token}` } }),
+        ]);
 
-        setUsers(data);
-        setFilteredUsers(data);
+        const allUsers = allUsersRes.data;
+        const connections = connectionsRes.data?.connections || [];
+
+        const connectedIds = connections.map(conn => conn._id);
+
+        const otherUsers = allUsers.filter(
+          user => user._id !== currentUserId && user.onboardingComplete
+        );
+
+        setUsers(otherUsers);
+        setFilteredUsers(otherUsers);
+        setConnectedUserIds(connectedIds);
       } catch (err) {
-        console.error('Failed to load match listings:', err);
+        console.error('Error loading users or connections:', err);
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchUsers();
+    fetchData();
   }, []);
+
+  const handleConnect = async (userId) => {
+    try {
+      const token = localStorage.getItem('token');
+
+      // Connect with the user
+      await api.post('/connections', { userId }, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      // Update UI state for this connection
+      setConnectedUserIds(prev => [...prev, userId]);
+
+      // Optional: Display a message
+      alert('Connection established! You can now chat, video call, and view enrolled classes.');
+    } catch (err) {
+      console.error('Failed to connect:', err);
+      alert('Connection failed');
+    }
+  };
 
   const handleSearch = (e) => {
     const value = e.target.value.toLowerCase();
     setSearchSkill(value);
+
     if (!value) {
       setFilteredUsers(users);
     } else {
       const filtered = users.filter(user =>
-        user.skills?.some(skill => skill.toLowerCase().includes(value))
+        Array.isArray(user.skills) &&
+        user.skills.some(skill => skill.toLowerCase().includes(value))
       );
       setFilteredUsers(filtered);
     }
   };
+
+  if (loading) {
+    return <p className="text-white text-center mt-20">Loading users...</p>;
+  }
 
   return (
     <div className="max-w-6xl mx-auto mt-16 p-6">
@@ -57,8 +98,13 @@ function BrowseUsers() {
         {filteredUsers.length === 0 ? (
           <p className="text-white text-center col-span-full">No users found.</p>
         ) : (
-          filteredUsers.map((user) => (
-            <UserCard key={user.user} user={user} />
+          filteredUsers.map(user => (
+            <UserCard
+              key={user._id}
+              user={user}
+              isConnected={connectedUserIds.includes(user._id)}
+              onConnect={() => handleConnect(user._id)}
+            />
           ))
         )}
       </div>

@@ -149,7 +149,7 @@ const TutorDashboard = ({
     <SubmitReviewCard
       tutorId={tutorId}
       onSuccess={async () => {
-        const res = await api.get(`/v1/reviews/${tutorId}`);
+        const res = await api.get(`/reviews/${tutorId}`);
         setReviews(res.data);
       }}
     />

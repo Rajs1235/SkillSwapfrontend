@@ -14,7 +14,7 @@ function Signup() {
     e.preventDefault();
     
     try {
-      const res = await api.post('/api/v1/users//register', {
+      const res = await api.post('/users/register', {
         fullName,
         username,
         email,

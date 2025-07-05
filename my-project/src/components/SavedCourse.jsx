@@ -7,7 +7,7 @@ function SavedCourse() {
   useEffect(() => {
     async function fetchSaved() {
       try {
-        const res = await api.get('/api/v1/users/saved-courses');
+        const res = await api.get('/users/saved-courses');
         setCourses(res.data.courses || []);
       } catch (err) {
         console.error('Error fetching saved courses', err);

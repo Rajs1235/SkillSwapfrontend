@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from './api';
+import sha256 from 'crypto-js/sha256';
+import Hex from 'crypto-js/enc-hex';
 
 export default function Matches() {
   const navigate = useNavigate();
@@ -8,26 +10,35 @@ export default function Matches() {
   const [loading, setLoading] = useState(true);
 
   const currentUserId = localStorage.getItem('userId');
-  const currentUser = JSON.parse(localStorage.getItem('userProfile')); // contains .skills
+  const currentUser = JSON.parse(localStorage.getItem('userProfile'));
 
+  // Generate hashed roomId
   const generateRoomId = (u1, u2) => {
-    return [u1, u2].sort().join('-');
+    return sha256([u1, u2].sort().join('-')).toString(Hex).slice(0, 16);
   };
 
   useEffect(() => {
-    const fetchMatches = async () => {
+    const fetchConnections = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await api.get('/api/v1/users/all');
 
-        const allUsers = res.data;
+        // ✅ Fetch connected users only
+        const res = await api.get('/connections', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        const connectedUsers = res.data?.connections || [];
         const currentSkills = currentUser?.skills || [];
 
-        const filteredMatches = allUsers
-          .filter(user => user._id !== currentUserId) // exclude self
+        const matched = connectedUsers
+          .filter(user =>
+            user._id !== currentUserId &&
+            user.onboardingComplete &&
+            Array.isArray(user.skills)
+          )
           .map(user => {
-            const overlapSkills = user.skills?.filter(skill => currentSkills.includes(skill)) || [];
-            const overlapPercentage = currentSkills.length > 0
+            const overlapSkills = user.skills.filter(skill => currentSkills.includes(skill));
+            const overlapPercentage = currentSkills.length
               ? Math.round((overlapSkills.length / currentSkills.length) * 100)
               : 0;
 
@@ -35,12 +46,12 @@ export default function Matches() {
               id: user._id,
               name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username,
               overlap: overlapPercentage,
+              skills: user.skills || [],
             };
           })
-          .filter(user => user.overlap > 0) // only show users with some skill overlap
-          .sort((a, b) => b.overlap - a.overlap); // sort by best match first
+          .sort((a, b) => b.overlap - a.overlap);
 
-        setMatches(filteredMatches);
+        setMatches(matched);
       } catch (err) {
         console.error('Error fetching matches:', err);
       } finally {
@@ -48,44 +59,55 @@ export default function Matches() {
       }
     };
 
-    fetchMatches();
+    fetchConnections();
   }, []);
 
+  const handleRemove = async (userIdToRemove) => {
+    try {
+      const token = localStorage.getItem('token');
+      await api.delete(`/connections/${userIdToRemove}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      setMatches(prev => prev.filter(m => m.id !== userIdToRemove));
+    } catch (err) {
+      console.error('Failed to remove connection:', err);
+      alert('Failed to remove connection');
+    }
+  };
+
   return (
-    <div
-      className="min-h-screen bg-cover bg-center py-12 px-6 text-white"
-      style={{ backgroundImage: "url('/images/857de75c-26e3-4770-becf-70a76c8cd6f0.png')" }}
-    >
+    <div className="min-h-screen bg-cover bg-center py-12 px-6 text-white"
+         style={{ backgroundImage: "url('/images/857de75c-26e3-4770-becf-70a76c8cd6f0.png')" }}>
       <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-white/20">
-        <h1 className="text-3xl font-bold mb-6">📘 Your Matches</h1>
+        <h1 className="text-3xl font-bold mb-6">🤝 Your Connections</h1>
 
         {loading ? (
           <p className="text-white">Loading matches...</p>
         ) : matches.length === 0 ? (
-          <p className="text-white/80">No skill matches found. Try updating your profile or skills.</p>
+          <p className="text-white/80">No connections found. Browse and connect with users first.</p>
         ) : (
           <ul className="space-y-4">
             {matches.map((match) => {
-              const roomId = generateRoomId(currentUserId, match.id);
+              const videoRoomId = generateRoomId(currentUserId, match.id);
+
               return (
-                <li
-                  key={match.id}
-                  className="bg-white/10 p-4 rounded-xl border border-white/20 shadow"
-                >
+                <li key={match.id} className="bg-white/10 p-4 rounded-xl border border-white/20 shadow">
                   <h2 className="text-xl font-semibold">{match.name}</h2>
-                  <div className="flex items-center gap-4 mt-2 text-white/70">
+                  <p className="text-sm text-white/70">Skills: {match.skills.join(', ')}</p>
+                  <div className="flex flex-wrap items-center gap-3 mt-3 text-white/70">
                     Skill Match: {match.overlap}%
                     <button
-                      onClick={() => navigate(`/chat/${roomId}`)}
-                      className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded"
-                    >
-                      💬 Chat
-                    </button>
-                    <button
-                      onClick={() => navigate(`/video-call/${match.id}`)}
+                      onClick={() => navigate(`/video-call/${videoRoomId}`)}
                       className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
                     >
                       🎥 Call
+                    </button>
+                    <button
+                      onClick={() => handleRemove(match.id)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded"
+                    >
+                      ❌ Remove
                     </button>
                   </div>
                 </li>

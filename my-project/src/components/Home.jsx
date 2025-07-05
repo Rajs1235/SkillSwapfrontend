@@ -2,6 +2,7 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import Dashboard from './Dashboard'
 import Login from './Login'
+import peer from '../assets/peer.jpg'
 function Home() {
   return (
     <div className="">
@@ -40,13 +41,12 @@ function Home() {
                 <div className="w-64 h-64 rounded-full bg-purple-400 mix-blend-screen filter blur-3xl ml-20"></div>
               </div>
               <div className="relative z-10 text-center p-8">
-                <div className="text-8xl mb-4 text-white/50">👥</div>
+              
+                <img src={peer} className="text-8xl mb-4 text-white/50 rounded-6xl" />
                 <h3 className="text-2xl font-semibold text-white/80">
                   Skill Exchange Network
                 </h3>
-                <p className="text-white/60 mt-2">
-                  Where knowledge meets opportunity
-                </p>
+               
               </div>
             </div>
           </div>

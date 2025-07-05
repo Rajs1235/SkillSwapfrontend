@@ -39,7 +39,7 @@ function Paths() {
   useEffect(() => {
     async function fetchPaths() {
       try {
-        const res = await api.get('/v1/paths');
+        const res = await api.get('/paths');
         setPaths(res.data.paths || []);
       } catch (err) {
         console.error('Error fetching learning paths', err);
