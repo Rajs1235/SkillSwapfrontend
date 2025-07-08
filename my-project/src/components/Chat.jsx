@@ -2,9 +2,10 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { io } from 'socket.io-client';
 
-const socket = io(import.meta.env.VITE_API_BASE_URL, {
+const socket = io(import.meta.env?.VITE_API_BASE_URL || "http://localhost:8000", {
   transports: ["websocket"],
 });
+
 
 const ChatComponent = ({ chatPartner = 'DeepSeek' }) => {
   const { roomId } = useParams(); // Get roomId from URL
