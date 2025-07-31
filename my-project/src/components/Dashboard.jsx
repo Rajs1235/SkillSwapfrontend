@@ -23,6 +23,44 @@ function Dashboard() {
 
   const userId = localStorage.getItem('userId');
 
+
+
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const token = localStorage.getItem('token');
+
+       const [ connectionsRes] = await Promise.all([
+          api.get('/connections', { headers: { Authorization: `Bearer ${token}` } })
+        ]);
+
+      
+        
+
+        const connectedIds = connectionsRes.data;
+
+          const count = connectedIds.connections.length;
+          console.log("count ",count);
+
+     setMatchCount(count);
+
+    
+console.log("connections",connectedIds);
+
+
+        
+
+       
+        console.log("response connected users",connectionsRes);
+      } catch (err) {
+        console.error('Error loading users or connections:', err);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   useEffect(() => {
     if (location.state?.onboardingSuccess) {
       alert("Welcome! Your profile has been successfully created.");
@@ -30,6 +68,9 @@ function Dashboard() {
     }
   }, [location.state]);
 
+
+
+  console.log("match count",matchCount);
 
   const logoutHandler = () => {
     localStorage.removeItem('token');

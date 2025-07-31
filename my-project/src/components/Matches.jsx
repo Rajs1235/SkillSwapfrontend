@@ -27,31 +27,16 @@ export default function Matches() {
           headers: { Authorization: `Bearer ${token}` },
         });
 
+
+         console.log("response",res)
         const connectedUsers = res.data?.connections || [];
-        const currentSkills = currentUser?.skills || [];
+         console.log("response after",connectedUsers)
 
-        const matched = connectedUsers
-          .filter(user =>
-            user._id !== currentUserId &&
-            user.onboardingComplete &&
-            Array.isArray(user.skills)
-          )
-          .map(user => {
-            const overlapSkills = user.skills.filter(skill => currentSkills.includes(skill));
-            const overlapPercentage = currentSkills.length
-              ? Math.round((overlapSkills.length / currentSkills.length) * 100)
-              : 0;
+         setMatches(connectedUsers);
 
-            return {
-              id: user._id,
-              name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username,
-              overlap: overlapPercentage,
-              skills: user.skills || [],
-            };
-          })
-          .sort((a, b) => b.overlap - a.overlap);
+    
 
-        setMatches(matched);
+        
       } catch (err) {
         console.error('Error fetching matches:', err);
       } finally {
@@ -62,6 +47,8 @@ export default function Matches() {
     fetchConnections();
   }, []);
 
+  console.log("matches",matches);
+
   const handleRemove = async (userIdToRemove) => {
     try {
       const token = localStorage.getItem('token');
@@ -71,8 +58,8 @@ export default function Matches() {
 
       setMatches(prev => prev.filter(m => m.id !== userIdToRemove));
     } catch (err) {
-      console.error('Failed to remove connection:', err);
-      alert('Failed to remove connection');
+      console.error('Failed to remove connection  ||| working.....:', err);
+      alert('Failed to remove connection ||| working......');
     }
   };
 
@@ -92,8 +79,9 @@ export default function Matches() {
               const videoRoomId = generateRoomId(currentUserId, match.id);
 
               return (
-                <li key={match.id} className="bg-white/10 p-4 rounded-xl border border-white/20 shadow">
-                  <h2 className="text-xl font-semibold">{match.name}</h2>
+                <li key={match._id} className="bg-white/10 p-4 rounded-xl border border-white/20 shadow">
+                  <h2 className="text-xl font-semibold">{match.username}</h2>
+                   <p className="text-sm text-white/70">{match.fullName}</p>
                   <p className="text-sm text-white/70">Skills: {match.skills.join(', ')}</p>
                   <div className="flex flex-wrap items-center gap-3 mt-3 text-white/70">
                     Skill Match: {match.overlap}%

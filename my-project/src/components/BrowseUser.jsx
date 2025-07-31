@@ -18,19 +18,29 @@ function BrowseUsers() {
 
         const [allUsersRes, connectionsRes] = await Promise.all([
           api.get('/users/all', { headers: { Authorization: `Bearer ${token}` } }),
-          api.get('/connections', { headers: { Authorization: `Bearer ${token}` } }),
+          api.get('/connections', { headers: { Authorization: `Bearer ${token}` } })
         ]);
 
-        const allUsers = allUsersRes.data;
+      
         const connections = connectionsRes.data?.connections || [];
 
         const connectedIds = connections.map(conn => conn._id);
 
-        const otherUsers = allUsers.filter(
-          user => user._id !== currentUserId && user.onboardingComplete
-        );
 
-        setUsers(otherUsers);
+
+        console.log("Current User ID:", currentUserId);
+
+const otherUsers = allUsersRes.data.filter(
+  user => String(user._id) !== String(currentUserId)
+);
+console.log("Other Users:", otherUsers);
+
+
+        
+
+        setUsers(otherUsers)
+        console.log("response all uusers",allUsersRes.data);
+      
         setFilteredUsers(otherUsers);
         setConnectedUserIds(connectedIds);
       } catch (err) {
@@ -43,6 +53,9 @@ function BrowseUsers() {
     fetchData();
   }, []);
 
+ console.log("allusers to print after use",users);
+ console.log("connected user before connection",connectedUserIds);
+
   const handleConnect = async (userId) => {
     try {
       const token = localStorage.getItem('token');
@@ -54,6 +67,8 @@ function BrowseUsers() {
 
       // Update UI state for this connection
       setConnectedUserIds(prev => [...prev, userId]);
+
+      console.log("after connecting",connectedUserIds);
 
       // Optional: Display a message
       alert('Connection established! You can now chat, video call, and view enrolled classes.');
@@ -95,10 +110,10 @@ function BrowseUsers() {
       />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {filteredUsers.length === 0 ? (
+        {users.length === 0 ? (
           <p className="text-white text-center col-span-full">No users found.</p>
         ) : (
-          filteredUsers.map(user => (
+          users.map(user => (
             <UserCard
               key={user._id}
               user={user}

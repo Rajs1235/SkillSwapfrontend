@@ -65,7 +65,7 @@ function Profile() {
       try {
        const response = await api.get('/users/profile');
 
-        console.log('API Response:', JSON.stringify(response.data, null, 2));
+        console.log('API Response:', JSON.stringify(response.data));
 
         const userData = response.data?.data?.user;
 
@@ -91,6 +91,36 @@ function Profile() {
 
     loadProfile();
   }, [reset]);
+
+//     useEffect(() => {
+//     const loadProfile = async () => {
+//       try {
+//        const response = await api.get('/users/matches');
+
+//         console.log('API Response:', JSON.stringify(response.data));
+
+//         const userData = response.data?.data?.user;
+
+//         if (!userData || !userData.username) {
+//           throw new Error("Invalid profile data structure");
+//         }
+// console.log(userData);
+//         setProfileData({
+//           ...userData,
+//           matches: userData.matches || []
+       
+//         });
+
+//         setIsLoading(false);
+//       } catch (error) {
+//         console.error("Profile load error:", error);
+//         setError(error.message);
+//         setIsLoading(false);
+//       }
+//     };
+
+//     loadProfile();
+//   }, [reset]);
 
   const getSkillDetails = (skillName) => {
     for (const category of Object.values(skillCategories)) {

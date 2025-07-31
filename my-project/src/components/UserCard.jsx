@@ -2,8 +2,9 @@ import React from 'react';
 
 function UserCard({ user, isConnected, onConnect }) {
   return (
-    <div className="bg-white/10 border border-white/20 p-4 rounded-xl text-white shadow">
-      <h2 className="text-xl font-semibold mb-2">{user.firstName} {user.lastName}</h2>
+    <div className="bg-white/10 border border-white/20 p-4 rounded-xl text-white shadow text-center">
+      <h2 className="text-xl font-semibold mb-2">{user.username}</h2>
+       <p className="text-sm text-white/80 mb-2">Name: {user.fullName}</p>
       <p className="text-sm text-white/80 mb-2">Role: {user.role}</p>
       <p className="text-sm text-white/70 mb-2">Skills: {user.skills?.join(', ') || 'None'}</p>
 
