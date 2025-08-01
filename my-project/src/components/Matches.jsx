@@ -10,33 +10,24 @@ export default function Matches() {
   const [loading, setLoading] = useState(true);
 
   const currentUserId = localStorage.getItem('userId');
-  const currentUser = JSON.parse(localStorage.getItem('userProfile'));
 
-  // Generate hashed roomId
+  /**
+   * Generates a stable, unique room ID for any two user IDs.
+   * Sorting ensures the ID is the same regardless of order (e.g., userA-userB is the same as userB-userA).
+   * @param {string} u1 - ID of the first user.
+   * @param {string} u2 - ID of the second user.
+   * @returns {string} A 16-character unique room ID.
+   */
   const generateRoomId = (u1, u2) => {
+    // Sort IDs to ensure consistency, then hash the result.
     return sha256([u1, u2].sort().join('-')).toString(Hex).slice(0, 16);
   };
 
   useEffect(() => {
     const fetchConnections = async () => {
       try {
-        const token = localStorage.getItem('token');
-
-        // ✅ Fetch connected users only
-        const res = await api.get('/connections', {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-
-         console.log("response",res)
-        const connectedUsers = res.data?.connections || [];
-         console.log("response after",connectedUsers)
-
-         setMatches(connectedUsers);
-
-    
-
-        
+        const res = await api.get('/connections');
+        setMatches(res.data?.connections || []);
       } catch (err) {
         console.error('Error fetching matches:', err);
       } finally {
@@ -47,25 +38,23 @@ export default function Matches() {
     fetchConnections();
   }, []);
 
-  console.log("matches",matches);
-
   const handleRemove = async (userIdToRemove) => {
     try {
-      const token = localStorage.getItem('token');
-      await api.delete(`/connections/${userIdToRemove}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      setMatches(prev => prev.filter(m => m.id !== userIdToRemove));
+      await api.delete(`/connections/${userIdToRemove}`);
+      // Filter out the removed user from the state
+      setMatches(prev => prev.filter(m => m._id !== userIdToRemove));
+      alert('Connection removed successfully.');
     } catch (err) {
-      console.error('Failed to remove connection  ||| working.....:', err);
-      alert('Failed to remove connection ||| working......');
+      console.error('Failed to remove connection:', err);
+      alert('Failed to remove connection. Please try again.');
     }
   };
 
   return (
-    <div className="min-h-screen bg-cover bg-center py-12 px-6 text-white"
-         style={{ backgroundImage: "url('/images/857de75c-26e3-4770-becf-70a76c8cd6f0.png')" }}>
+    <div 
+        className="min-h-screen bg-cover bg-center py-12 px-6 text-white"
+        style={{ backgroundImage: "url('/images/857de75c-26e3-4770-becf-70a76c8cd6f0.png')" }}
+    >
       <div className="max-w-4xl mx-auto bg-white/10 backdrop-blur-md rounded-2xl p-8 shadow-xl border border-white/20">
         <h1 className="text-3xl font-bold mb-6">🤝 Your Connections</h1>
 
@@ -76,24 +65,24 @@ export default function Matches() {
         ) : (
           <ul className="space-y-4">
             {matches.map((match) => {
-              const videoRoomId = generateRoomId(currentUserId, match.id);
+              // ✅ ADDED: Generate a unique video call room ID for each match pair.
+              const videoRoomId = generateRoomId(currentUserId, match._id);
 
               return (
                 <li key={match._id} className="bg-white/10 p-4 rounded-xl border border-white/20 shadow">
                   <h2 className="text-xl font-semibold">{match.username}</h2>
-                   <p className="text-sm text-white/70">{match.fullName}</p>
+                  <p className="text-sm text-white/70">{match.fullName}</p>
                   <p className="text-sm text-white/70">Skills: {match.skills.join(', ')}</p>
-                  <div className="flex flex-wrap items-center gap-3 mt-3 text-white/70">
-                    Skill Match: {match.overlap}%
+                  <div className="flex flex-wrap items-center gap-3 mt-3">
                     <button
                       onClick={() => navigate(`/video-call/${videoRoomId}`)}
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded"
+                      className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-1 rounded transition"
                     >
                       🎥 Call
                     </button>
                     <button
-                      onClick={() => handleRemove(match.id)}
-                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded"
+                      onClick={() => handleRemove(match._id)}
+                      className="bg-red-600 hover:bg-red-700 text-white px-4 py-1 rounded transition"
                     >
                       ❌ Remove
                     </button>

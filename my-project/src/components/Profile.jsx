@@ -1,19 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import api from './api';
+import ProfileEditForm from './ProfileEditForm';
 import {
   FaPython, FaReact, FaJava, FaNodeJs, FaChartBar, FaPaintBrush, FaMusic,
   FaCamera, FaLanguage, FaPenNib, FaBrain, FaProjectDiagram, FaChartPie,
-  FaCodeBranch, FaGuitar, FaUserEdit
+  FaCodeBranch, FaGuitar, FaUserEdit, FaUsers, FaClock // Icon for time
 } from 'react-icons/fa';
 import {
   SiTableau, SiJavascript, SiDjango, SiR, SiGoogleanalytics, SiPhp,
   SiMysql, SiTypescript
 } from 'react-icons/si';
 import { GiMicrophone, GiDrum } from 'react-icons/gi';
-import { toast } from 'react-toastify';
 
-const defaultAvatarUrl = 'https://i.ibb.co/sRL4Nrb/default-avatar.png';
+const defaultAvatarUrl = 'https://placehold.co/256x256/E9D5FF/3730A3/png?text=User';
 
 const skillCategories = {
   programming: [
@@ -51,76 +50,84 @@ const skillCategories = {
 };
 
 function Profile() {
-  const { register, handleSubmit, watch, setValue, reset } = useForm();
-  const [role, setRole] = useState('Learner');
   const [profileData, setProfileData] = useState(null);
   const [isEditing, setIsEditing] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const selectedSkills = watch('skills') || [];
 
   useEffect(() => {
     const loadProfile = async () => {
+      setIsLoading(true);
       try {
-       const response = await api.get('/users/profile');
+        const [profileRes, connectionsRes] = await Promise.all([
+            api.get('/users/profile'),
+            api.get('/connections')
+        ]);
 
-        console.log('API Response:', JSON.stringify(response.data));
-
-        const userData = response.data?.data?.user;
-
+        const userData = profileRes.data?.data?.user;
         if (!userData || !userData.username) {
-          throw new Error("Invalid profile data structure");
+          throw new Error("Invalid profile data structure on initial load");
         }
+
+        const matchCount = connectionsRes.data?.connections?.length || 0;
 
         setProfileData({
           ...userData,
           avatar: userData.avatar || defaultAvatarUrl,
           skills: userData.skills || [],
-          matches: userData.matches || [],
-          role: userData.role || 'Learner'
+          role: userData.role || 'Learner',
+          matchCount: matchCount,
+          totalTimeSpent: userData.totalTimeSpent || 0 
         });
 
-        setIsLoading(false);
       } catch (error) {
         console.error("Profile load error:", error);
         setError(error.message);
+      } finally {
         setIsLoading(false);
       }
     };
 
     loadProfile();
-  }, [reset]);
+  }, []);
 
-//     useEffect(() => {
-//     const loadProfile = async () => {
-//       try {
-//        const response = await api.get('/users/matches');
+  const handleSaveProfile = async (updatedData) => {
+    try {
+        const response = await api.put('/users/profile', updatedData);
+        const updatedUser = response.data?.user;
 
-//         console.log('API Response:', JSON.stringify(response.data));
+        if (!updatedUser || !updatedUser.username) {
+            throw new Error("Could not find 'user' object in the server response.");
+        }
 
-//         const userData = response.data?.data?.user;
+        setProfileData(prev => ({
+            ...prev,
+            ...updatedUser,
+        }));
+        
+        alert("Profile updated successfully!");
+        setIsEditing(false); 
+    } catch (err) {
+        console.error("Failed to update profile:", err);
+        alert("Error: " + err.message);
+    }
+  };
 
-//         if (!userData || !userData.username) {
-//           throw new Error("Invalid profile data structure");
-//         }
-// console.log(userData);
-//         setProfileData({
-//           ...userData,
-//           matches: userData.matches || []
-       
-//         });
+  // ADDED: Helper function to format seconds into a readable string
+  const formatTotalTime = (totalSeconds) => {
+    if (!totalSeconds || totalSeconds <= 0) return "0 sec";
+    
+    const h = Math.floor(totalSeconds / 3600);
+    const m = Math.floor((totalSeconds % 3600) / 60);
+    const s = Math.floor(totalSeconds % 60);
 
-//         setIsLoading(false);
-//       } catch (error) {
-//         console.error("Profile load error:", error);
-//         setError(error.message);
-//         setIsLoading(false);
-//       }
-//     };
-
-//     loadProfile();
-//   }, [reset]);
+    const parts = [];
+    if (h > 0) parts.push(`${h}hr`);
+    if (m > 0) parts.push(`${m}min`);
+    if (s > 0 || parts.length === 0) parts.push(`${s}sec`);
+    
+    return parts.join(':');
+  };
 
   const getSkillDetails = (skillName) => {
     for (const category of Object.values(skillCategories)) {
@@ -151,72 +158,80 @@ function Profile() {
       </div>
     );
   }
-{profileData.skills.map(skill => {
-  const skillDetail = getSkillDetails(skill);
-  return (
-    <div key={skill} className="...">
-      {skillDetail.icon}
-      <span>{skillDetail.name}</span>
-    </div>
-  );
-})}
+  
+  if (!profileData) return null;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-700">My Profile</h2>
-        <button
-          onClick={() => setIsEditing(true)}
-          className="flex items-center px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-        >
-          <FaUserEdit className="mr-2" /> Edit
-        </button>
-      </div>
+    <>
+      <div className="max-w-3xl mx-auto p-6 bg-white rounded-xl shadow-lg">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-2xl font-bold text-gray-700">My Profile</h2>
+          <button
+            onClick={() => setIsEditing(true)}
+            className="flex items-center px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
+          >
+            <FaUserEdit className="mr-2" /> Edit
+          </button>
+        </div>
 
-      {/* Avatar and Basic Info */}
-      <div className="flex items-center space-x-6 mb-6">
-     
-        <div>
-          <p className="text-xl font-semibold">{profileData.username}</p>
-          <p className="text-gray-600">{profileData.email}</p>
-          <p className="text-sm text-blue-600 font-medium">Role: {profileData.role}</p>
+        <div className="flex items-center space-x-6 mb-6">
+          <img src={profileData.avatar} alt="User Avatar" className="w-24 h-24 rounded-full object-cover border-4 border-purple-200" />
+          <div>
+            <p className="text-xl font-semibold">{profileData.username}</p>
+            <p className="text-gray-600">{profileData.email}</p>
+            <p className="text-sm text-blue-600 font-medium">Role: {profileData.role}</p>
+          </div>
+        </div>
+
+        <div className="mb-6">
+          <h3 className="text-lg font-semibold text-gray-700 mb-2">Skills</h3>
+          {profileData.skills.length > 0 ? (
+            <div className="flex flex-wrap gap-3">
+              {profileData.skills.map(skill => {
+                const skillDetail = getSkillDetails(skill);
+                return (
+                  <div key={skill} className="flex items-center space-x-1 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
+                    {skillDetail.icon}
+                    <span>{skillDetail.name}</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-gray-500">No skills added.</p>
+          )}
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+            <div>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">Connections</h3>
+                <div className="flex items-center space-x-2 bg-blue-100 text-blue-800 px-3 py-2 rounded-lg">
+                    <FaUsers />
+                    <span>You have <strong>{profileData.matchCount}</strong> match(es).</span>
+                </div>
+            </div>
+            
+            {/* ADDED: Total Time Spent Display */}
+            <div>
+                <h3 className="text-lg font-semibold text-gray-700 mb-2">Total Time Spent</h3>
+                <div className="flex items-center space-x-2 bg-green-100 text-green-800 px-3 py-2 rounded-lg">
+                    <FaClock />
+                    <span>
+                        <strong>{formatTotalTime(profileData.totalTimeSpent)}</strong> spent learning.
+                    </span>
+                </div>
+            </div>
         </div>
       </div>
-
-      {/* Skills */}
-      <div className="mb-6">
-        <h3 className="text-lg font-semibold text-gray-700 mb-2">Skills</h3>
-        {profileData.skills.length > 0 ? (
-          <div className="flex flex-wrap gap-3">
-            {profileData.skills.map(skill => {
-              const skillDetail = getSkillDetails(skill);
-              return (
-                <div key={skill} className="flex items-center space-x-1 bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
-                  {skillDetail.icon}
-                  <span>{skillDetail.name}</span>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <p className="text-gray-500">No skills added.</p>
-        )}
-      </div>
-
-      {/* Matches */}
-      <div>
-        <h3 className="text-lg font-semibold text-gray-700 mb-2">Matches</h3>
-        {profileData.matches.length > 0 ? (
-          <ul className="list-disc list-inside text-gray-600">
-            {profileData.matches.map((matchId, idx) => (
-              <li key={idx}>{matchId}</li>
-            ))}
-          </ul>
-        ) : (
-          <p className="text-gray-500">No matches yet.</p>
-        )}
-      </div>
-    </div>
+  
+      {isEditing && (
+        <ProfileEditForm 
+          user={profileData}
+          onSave={handleSaveProfile}
+          onClose={() => setIsEditing(false)}
+        />
+      )}
+    </>
   );
 }
 

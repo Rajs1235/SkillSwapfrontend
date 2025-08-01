@@ -1,22 +1,27 @@
 import React, { useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { FaBookOpen, FaChartBar, FaCertificate, FaFileDownload } from 'react-icons/fa';
 import { generateCertificate } from '../utils/generateCertificate.js';
-import api from '../components/api'; // Make sure api.js is correctly imported
+import api from '../components/api';
 
-const LearnerDashboard = ({
-  progress = 80,
-  skillsLearning = ['JavaScript', 'React'],
-  evaluationStatus = 'Not Evaluated',
-  certificatesEarned = 1,
-  name = 'John Doe',
-}) => {
+const LearnerDashboard = () => {
+  const location = useLocation();
+  const { 
+    username = 'Learner', 
+    skills = [], 
+  } = location.state?.userData || {};
+
   const [showCertificate, setShowCertificate] = useState(false);
   const [evaluationResult, setEvaluationResult] = useState(null);
   const [loadingEval, setLoadingEval] = useState(false);
 
+  const progress = 80;
+  const certificatesEarned = 1;
+  const evaluationStatus = 'Not Evaluated';
+
   const certificateData = {
-    name,
-    skill: skillsLearning[0] || 'Full Stack Development',
+    name: username,
+    skill: skills[0] || 'Full Stack Development',
     date: new Date().toLocaleDateString(),
   };
 
@@ -30,7 +35,7 @@ const LearnerDashboard = ({
       const res = await api.post('/users/evaluation/run', {
         userId: localStorage.getItem('userId'),
         role: 'learner',
-        skills: skillsLearning,
+        skills: skills,
       });
       setEvaluationResult(res.data);
     } catch (error) {
@@ -45,7 +50,6 @@ const LearnerDashboard = ({
     <div className="max-w-8xl mx-auto p-6 mt-0 bg-white/30 backdrop-blur-md rounded-xl shadow-xl text-white space-y-8 overflow-y-auto">
       <h2 className="text-4xl font-bold mb-4">Learner Dashboard</h2>
 
-      {/* Top Stats */}
       <div className="grid md:grid-cols-3 gap-6">
         <div className="p-6 bg-blue-600 rounded-lg shadow text-center">
           <FaChartBar size={32} className="mx-auto mb-2" />
@@ -56,7 +60,7 @@ const LearnerDashboard = ({
         <div className="p-6 bg-purple-600 rounded-lg shadow text-center">
           <FaBookOpen size={32} className="mx-auto mb-2" />
           <p className="text-xl font-semibold">Skills Being Learned</p>
-          <p className="text-3xl">{skillsLearning.length}</p>
+          <p className="text-3xl">{skills.length}</p>
         </div>
 
         <div className="p-6 bg-teal-500 rounded-lg shadow text-center">
@@ -72,7 +76,6 @@ const LearnerDashboard = ({
         </div>
       </div>
 
-      {/* Certificate Viewer */}
       {showCertificate && (
         <div className="mt-8 bg-white text-black p-6 rounded-lg shadow-lg space-y-4">
           <div className="flex items-center justify-between">
@@ -92,46 +95,21 @@ const LearnerDashboard = ({
         </div>
       )}
 
-      {/* Skills In Progress */}
       <div>
         <h3 className="text-2xl font-semibold mt-8 mb-3">Skills in Progress</h3>
         <div className="flex flex-wrap gap-3">
-          {skillsLearning.length > 0 ? (
-            skillsLearning.map((skill, i) => (
+          {skills.length > 0 ? (
+            skills.map((skill, i) => (
               <span key={i} className="px-4 py-2 bg-violet-500 rounded-full">{skill}</span>
             ))
           ) : (
-            <p className="text-gray-300">No skills selected yet.</p>
+            <p className="text-gray-300">No skills selected yet. Go to your profile to add some!</p>
           )}
         </div>
       </div>
 
-      {/* AI Evaluation */}
-      <div className="mt-6">
-        <h3 className="text-2xl font-semibold mb-2">AI Skill Evaluation</h3>
-        <button
-          className="mb-3 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-          onClick={handleEvaluate}
-          disabled={loadingEval}
-        >
-          {loadingEval ? 'Evaluating...' : 'Run AI Evaluation'}
-        </button>
-        {evaluationResult && (
-          <div className="bg-white/10 p-4 rounded text-white border border-white/20">
-            <p><strong>Status:</strong> {evaluationResult.status}</p>
-            <p><strong>Score:</strong> {evaluationResult.score}/100</p>
-            <p><strong>Feedback:</strong> {evaluationResult.feedback}</p>
-          </div>
-        )}
-      </div>
+   
 
-      {/* Previous Status */}
-      <div className="mt-6">
-        <h3 className="text-2xl font-semibold mb-2">Previous Evaluation Status</h3>
-        <p className="text-lg bg-white/10 p-4 rounded border border-white/20">
-          {evaluationStatus}
-        </p>
-      </div>
     </div>
   );
 };

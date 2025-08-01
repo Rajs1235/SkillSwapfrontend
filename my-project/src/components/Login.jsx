@@ -21,6 +21,9 @@ function Login() {
       if (!accesstoken) {
         throw new Error("Access token missing in response.");
       }
+      
+      // ✅ Store session start time
+      localStorage.setItem('sessionStartTime', new Date().toISOString());
 
       // ✅ Store tokens and user data
       localStorage.setItem("token", accesstoken);

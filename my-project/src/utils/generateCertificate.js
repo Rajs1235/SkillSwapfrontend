@@ -3,130 +3,147 @@ import logo from '../assets/skillswap_logo.png'; // Make sure this is a PNG or b
 
 export const generateCertificate = async ({ name, skill, date, type = 'learner', skills = [] }) => {
   const pdfDoc = await PDFDocument.create();
-  const page = pdfDoc.addPage([800, 600]);
+  const page = pdfDoc.addPage([841.89, 595.28]); // A4 Landscape size
   const { width, height } = page.getSize();
 
-  const boldFont = await pdfDoc.embedFont(StandardFonts.TimesRomanBold);
-  const normalFont = await pdfDoc.embedFont(StandardFonts.TimesRoman);
+  // Use a cleaner, more modern font
+  const helveticaBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  const helvetica = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-  // Add background logo as watermark
+  // Define a color palette
+  const colors = {
+    primary: rgb(0.12, 0.23, 0.44), // Deep Navy Blue
+    secondary: rgb(0.22, 0.45, 0.70), // Brighter Blue
+    text: rgb(0.2, 0.2, 0.2), // Dark Gray
+    lightText: rgb(0.5, 0.5, 0.5), // Lighter Gray
+    seal: rgb(0.12, 0.23, 0.44),
+  };
+
+  // --- 1. Draw a Decorative Border ---
+  const borderWidth = 15;
+  page.drawRectangle({
+    x: borderWidth,
+    y: borderWidth,
+    width: width - borderWidth * 2,
+    height: height - borderWidth * 2,
+    borderColor: colors.primary,
+    borderWidth: 2,
+  });
+
+  // --- 2. Add Header with Logo ---
   try {
     const logoBytes = await fetch(logo).then((res) => res.arrayBuffer());
     const logoImg = await pdfDoc.embedPng(logoBytes);
-
-    const logoDims = logoImg.scale(1); // Use original size to determine ratio
-
-    const logoWidth = width * 0.8;
-    const logoHeight = (logoDims.height / logoDims.width) * logoWidth;
+    const logoDims = logoImg.scale(0.25); // Scale down the logo for the header
 
     page.drawImage(logoImg, {
-      x: (width - logoWidth) / 2,
-      y: (height - logoHeight) / 2,
-      width: logoWidth,
-      height: logoHeight,
-      opacity: 0.1, // ✅ Light watermark
+      x: (width - logoDims.width) / 2,
+      y: height - 80,
+      width: logoDims.width,
+      height: logoDims.height,
     });
   } catch (err) {
-    console.error('Logo watermark failed to load:', err);
+    console.error('Logo failed to load:', err);
   }
 
-  // Title
-  const title = type === 'tutor' ? 'Verified Tutor Certificate' : 'Certificate of Completion';
-  page.drawText(title, {
-    x: 200,
-    y: 500,
-    size: 28,
-    font: boldFont,
-    color: rgb(0.1, 0.2, 0.5),
+  // --- 3. Main Content ---
+  // Helper function to draw centered text
+  const drawTextCentered = (text, font, size, y, color) => {
+    const textWidth = font.widthOfTextAtSize(text, size);
+    page.drawText(text, {
+      x: (width - textWidth) / 2,
+      y,
+      font,
+      size,
+      color,
+    });
+  };
+
+  const mainTitle = type === 'tutor' ? 'Verified Tutor Certificate' : 'Certificate of Achievement';
+  drawTextCentered(mainTitle, helveticaBold, 34, height - 140, colors.primary);
+
+  page.drawLine({
+    start: { x: 200, y: height - 155 },
+    end: { x: width - 200, y: height - 155 },
+    thickness: 1,
+    color: colors.secondary,
   });
 
-  // Recipient
-  page.drawText('This is proudly awarded to', {
-    x: 260,
-    y: 440,
-    size: 14,
-    font: normalFont,
-    color: rgb(0.2, 0.2, 0.2),
-  });
+  drawTextCentered('This certificate is proudly presented to', helvetica, 15, height - 190, colors.lightText);
 
-  page.drawText(name, {
-    x: 240,
-    y: 410,
-    size: 24,
-    font: boldFont,
-    color: rgb(0, 0, 0),
-  });
+  // Recipient's Name - make it stand out
+  drawTextCentered(name, helveticaBold, 48, height - 250, colors.secondary);
 
   if (type === 'learner') {
-    page.drawText('For successfully completing:', {
-      x: 270,
-      y: 370,
-      size: 14,
-      font: normalFont,
-      color: rgb(0.2, 0.2, 0.2),
-    });
-
-    page.drawText(`SkillSwap Skill Builder: ${skill}`, {
-      x: 230,
-      y: 340,
-      size: 16,
-      font: boldFont,
-      color: rgb(0.1, 0.4, 0.6),
-    });
+    drawTextCentered('For successfully demonstrating proficiency in', helvetica, 15, height - 290, colors.lightText);
+    drawTextCentered(skill, helveticaBold, 24, height - 325, colors.text);
   } else if (type === 'tutor') {
-    page.drawText('Certified as a Verified Tutor at SkillSwap', {
-      x: 200,
-      y: 370,
-      size: 14,
-      font: normalFont,
-      color: rgb(0.2, 0.2, 0.2),
-    });
-
-    page.drawText('Eligible to teach the following skills:', {
-      x: 230,
-      y: 340,
-      size: 12,
-      font: normalFont,
-      color: rgb(0.2, 0.2, 0.2),
-    });
-
+    drawTextCentered('For being recognized as a Verified Tutor with expertise in:', helvetica, 15, height - 290, colors.lightText);
+    
+    // List tutor skills
+    let startY = height - 325;
     skills.forEach((s, i) => {
-      page.drawText(`- ${s}`, {
-        x: 250,
-        y: 320 - i * 20,
-        size: 12,
-        font: normalFont,
-        color: rgb(0.1, 0.1, 0.1),
-      });
+        drawTextCentered(`• ${s} •`, helveticaBold, 16, startY - i * 25, colors.text);
     });
   }
 
-  // Date and signature
-  page.drawText(`Date: ${date}`, {
-    x: 50,
-    y: 80,
+  // --- 4. Footer with Signatures and Seal ---
+  const footerY = 100;
+  
+  // Date
+  page.drawText(`Issued on: ${date}`, {
+    x: 75,
+    y: footerY,
+    font: helvetica,
     size: 12,
-    font: normalFont,
-    color: rgb(0.2, 0.2, 0.2),
+    color: colors.lightText,
   });
 
-  page.drawText('__________________________', {
-    x: 500,
-    y: 100,
-    size: 12,
-    font: normalFont,
-    color: rgb(0.2, 0.2, 0.2),
+  // Signature Line
+  page.drawLine({
+    start: { x: width - 275, y: footerY - 2 },
+    end: { x: width - 75, y: footerY - 2 },
+    thickness: 1,
+    color: colors.text,
   });
-
   page.drawText('Project Lead, SkillSwap', {
-    x: 520,
-    y: 80,
-    size: 10,
-    font: normalFont,
-    color: rgb(0.2, 0.2, 0.2),
+    x: width - 255,
+    y: footerY - 18,
+    font: helvetica,
+    size: 12,
+    color: colors.lightText,
   });
 
-  // Save and download
+  // --- 5. Add an "Official Seal" ---
+  const sealSize = 45;
+  page.drawCircle({
+    x: width / 2,
+    y: footerY + 15,
+    size: sealSize,
+    color: colors.seal,
+    borderWidth: 2,
+    borderColor: colors.primary,
+  });
+  
+  // Text inside the seal
+  const sealFont = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  page.drawText('VERIFIED', {
+    x: width/2 - sealFont.widthOfTextAtSize('VERIFIED', 10)/2,
+    y: footerY + 20,
+    font: sealFont,
+    size: 10,
+    color: rgb(1, 1, 1),
+  });
+  page.drawText('SKILLSWAP', {
+    x: width/2 - sealFont.widthOfTextAtSize('SKILLSWAP', 8)/2,
+    y: footerY + 8,
+    font: sealFont,
+    size: 8,
+    color: rgb(1, 1, 1),
+  });
+
+
+  // --- 6. Save and Download ---
   const pdfBytes = await pdfDoc.save();
   const blob = new Blob([pdfBytes], { type: 'application/pdf' });
   const link = document.createElement('a');
