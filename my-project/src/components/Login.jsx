@@ -44,7 +44,8 @@ function Login() {
   };
 
   return (
-    <div className="space-y-8 min-h-[400px] flex flex-col justify-between">
+    // --- THIS IS THE LINE THAT WAS CHANGED ---
+    <div className="min-h-screen flex items-center justify-center bg-transparent">
       <div className="container">
         <div className="form_area">
           <p className="title">LOGIN</p>

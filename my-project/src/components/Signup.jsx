@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from './api';
 
 function Signup() {
-   const [fullName, setfullName] = useState('');
+  const [fullName, setfullName] = useState('');
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -22,7 +22,8 @@ function Signup() {
       });
 
       console.log('Signup successful:', res.data);
-      navigate('/Onboarding');
+      // It's a good practice to automatically log the user in or direct them to login after signup
+      navigate('/login'); 
     } catch (err) {
       console.error('Signup error:', err);
       setError(err.response?.data?.message || 'Signup failed. Try again.');
@@ -30,14 +31,15 @@ function Signup() {
   };
 
   return (
-    <div className="space-y-8 min-h-[400px] flex flex-col justify-between">
+    // --- THIS IS THE LINE THAT WAS CHANGED ---
+    <div className="min-h-screen flex items-center justify-center bg-transparent">
       <div className="container">
         <div className="form_area">
           <p className="title">SIGN UP</p>
 
           <form onSubmit={handleSignup}>
             <div className="form_group">
-              <label className="sub_title" htmlFor="name">FullName</label>
+              <label className="sub_title" htmlFor="name">Full Name</label>
               <input
                 placeholder="Enter your full name"
                 id="name"
@@ -48,8 +50,8 @@ function Signup() {
                 required
               />
             </div>
-      <div className="form_group">
-              <label className="sub_title" htmlFor="name">UserName</label>
+            <div className="form_group">
+              <label className="sub_title" htmlFor="username">Username</label>
               <input
                 placeholder="Enter your Username"
                 id="username"
